@@ -1,0 +1,21 @@
+{
+  "name": "nowave",
+  "version": "1.0.0",
+  "description": "Shortwave-style keys, a command palette and split inbox tabs for Gmail. No AI.",
+  "license": "MIT",
+  "author": "Dominik Filliger",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dmnkf/nowave.git"
+  },
+  "homepage": "https://github.com/dmnkf/nowave#readme",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}
