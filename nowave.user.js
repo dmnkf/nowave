@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         nowave
 // @namespace    https://github.com/dmnkf/nowave
-// @version      1.0.0
+// @version      1.0.1
 // @description  Shortwave-style keys, a command palette and split inbox tabs for Gmail. No AI.
 // @author       Dominik Filliger
 // @license      MIT
@@ -50,7 +50,7 @@ import {
   mainMenu,
   navToggle,
   shownConversation,
-  toolbarActions,
+  listToolbar,
 } from './src/skin.js';
 import { createActionQueue } from './src/queue.js';
 import { activeSplitIndex, cycleSplitIndex, parseRoute, splitHash } from './src/route.js';
@@ -225,6 +225,7 @@ function sync() {
     window.dispatchEvent(new Event('resize'));
   }
   syncNav();
+  palette.setSkin(settings.skin);
   railPin.sync(settings.skin);
   syncGmailKeys();
   const view = parseRoute(location.hash).view;
@@ -235,7 +236,7 @@ function sync() {
     const counts = settings.skin ? settings.splits.map((s) => (s.query === 'in:inbox' ? inboxUnread() : null)) : [];
     splitBar.setSkin(settings.skin);
     splitBar.render(settings.splits, activeSplitIndex(settings.splits, location.hash), counts);
-    splitBar.mountBefore((settings.skin && toolbarActions()) || list);
+    splitBar.mountBefore(listToolbar(list) || list);
   } else {
     splitBar.unmount();
   }

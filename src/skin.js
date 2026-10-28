@@ -9,7 +9,6 @@ const SELECTORS = {
   mainMenu: 'header#gb div[role="button"][aria-expanded]',
   appReady: '[role="main"]',
   toolbar: '[gh="tm"]',
-  toolbarActions: '[gh="mtb"]',
   inboxLink: '[role="navigation"] a[href$="#inbox"]',
   navItem: '.TO',
   navCount: '.bsU',
@@ -40,27 +39,31 @@ export const SKIN_CSS = `
 ${S} {
   --nw-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, "Segoe UI", Roboto, sans-serif;
   --nw-text: #1c1d1f;
+  --nw-surface: #ffffff;
   --nw-secondary: #5f636b;
-  --nw-tertiary: #8a8f98;
+  --nw-tertiary: #6b7280;
   --nw-hairline: rgba(0, 0, 0, 0.06);
   --nw-chrome: #f7f7f8;
   --nw-accent: #3d63f2;
   --nw-wash: #eef2fe;
   --nw-hover: #f5f6f8;
+  --nw-selected: #e2e8fd;
   --nw-ease: ${EASE};
+  color-scheme: light;
 }
 ${S} body,
 ${S} .wl { background: var(--nw-chrome) !important; }
 ${S} .bkK { margin-right: 8px; }
-${S} .bkK > .nH { border-radius: 12px; box-shadow: 0 0 0 1px var(--nw-hairline); }
+${S} .bkK > .nH {
+  border-radius: 12px;
+  background: var(--nw-surface);
+  box-shadow: 0 0 0 1px var(--nw-hairline);
+}
 
-${S} header#gb { height: 52px; overflow: hidden; }
+${S} header#gb { min-height: 52px; height: auto; }
 ${S} header#gb > div:has([role="search"]) { height: 52px; padding-block: 0; align-items: center; }
 ${S} header#gb div:has(> div[role="button"][aria-expanded]) { flex: none !important; min-width: 0 !important; }
-${S} header#gb a[href$="#inbox"],
-${S} header#gb #gbwa,
-${S} header#gb .zo,
-${S} .aqk > div:has(> .aUx [role="complementary"]) {
+${S} header#gb a[href$="#inbox"] {
   display: none !important;
 }
 ${S} header#gb form[role="search"] {
@@ -75,12 +78,21 @@ ${S} header#gb form[role="search"] {
 }
 ${S} header#gb form[role="search"] > :is(div, button) { height: 36px; }
 ${S} header#gb form[role="search"] input { font: 14px var(--nw-font); color: var(--nw-text); }
+${S} header#gb form[role="search"]:focus-within {
+  background: var(--nw-surface);
+  box-shadow: 0 0 0 2px var(--nw-accent);
+}
 ${S} header#gb a[href*="accounts.google.com/SignOutOptions"] { transform: scale(0.8); }
 
 ${S} [role="navigation"].aeN {
   background: var(--nw-chrome);
   box-shadow: inset -1px 0 var(--nw-hairline);
 }
+${S} [role="navigation"] .TO { border-radius: 8px; }
+${S} [role="navigation"] .TO a { font-family: var(--nw-font); }
+${S} [role="navigation"] .TO:hover { background: var(--nw-hover); }
+${S} [role="navigation"] .TO:has(a[aria-current="page"]) { background: var(--nw-wash); }
+${S} [role="navigation"] .bsU { font: 500 11px var(--nw-font); color: var(--nw-secondary); }
 ${S} [gh="cm"] {
   interpolate-size: allow-keywords;
   box-sizing: border-box;
@@ -93,7 +105,7 @@ ${S} [gh="cm"] {
   overflow: hidden;
   white-space: nowrap;
   border-radius: 10px !important;
-  background: #ffffff;
+  background: var(--nw-surface);
   color: var(--nw-text);
   font: 500 14px/20px var(--nw-font) !important;
   box-shadow: 0 0 0 1px var(--nw-hairline), 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -111,12 +123,13 @@ ${S} [gh="cm"]::before {
 ${S} ${SELECTORS.nav}.${RAIL_CLASS} [gh="cm"] { width: 40px !important; padding: 0 10px !important; }
 ${S} [gh="cm"]:hover { background: var(--nw-hover); }
 
-${S} ${SELECTORS.toolbar} { display: flex !important; align-items: center; height: 44px !important; }
-${S} ${SELECTORS.toolbar} > :has(> #nowave-splits) { height: 32px; align-items: center; }
-${S} ${SELECTORS.toolbar}:has(#nowave-splits) :is(${SELECTORS.toolbarActions}, [role="toolbar"]) { display: none !important; }
-${S} ${SELECTORS.toolbar} #nowave-splits { flex: 1; min-width: 0; margin-left: -8px; }
+${S} ${SELECTORS.toolbar} { min-height: 44px; background: var(--nw-surface); }
+${S} #nowave-splits { min-width: 0; padding: 8px 12px; background: var(--nw-surface); }
 
-${S} tr.zA > :is(td.PF, td.oZ-x3, td.apU, td.WA) { display: none !important; }
+${S} tr.zA > td.PF { display: none !important; }
+${S} tr.zA > :is(td.oZ-x3, td.apU, td.WA) { opacity: 0.6; }
+${S} tr.zA:is(:hover, :focus-within, .x7) > :is(td.oZ-x3, td.apU, td.WA),
+${S} tr.zA > :is(td.oZ-x3, td.apU, td.WA):has([aria-checked="true"]) { opacity: 1; }
 ${S} tr.zA {
   margin-inline: 8px;
   border-radius: 8px;
@@ -134,7 +147,7 @@ ${S} tr.zA > td:not(.bq4),
 ${S} tr.zA > td:not(.bq4) * { font-family: var(--nw-font) !important; }
 ${S} tr.zA > td.yX { padding-left: 12px; }
 ${S} tr.zA:hover { background: var(--nw-hover) !important; }
-${S} tr.zA:has([role="checkbox"][aria-checked="true"]) { background: #e2e8fd !important; }
+${S} tr.zA:has(td.oZ-x3 [role="checkbox"][aria-checked="true"]) { background: var(--nw-selected) !important; }
 ${S} tr.zA.btb {
   background: var(--nw-wash) !important;
   box-shadow: inset 3px 0 var(--nw-accent) !important;
@@ -150,19 +163,51 @@ ${S} h3.Wr .qh {
 ${S} h3.Wr img.qi { opacity: 0.4; transform: scale(0.75); }
 ${S} .Wg .Dj,
 ${S} .Wg .Dj * { font: 500 11px/16px var(--nw-font) !important; color: var(--nw-tertiary) !important; }
+${S} tr.zA :is(td.yX, .bog),
 ${S} tr.zA :is(td.yX, .bog) * { font-weight: 400 !important; color: var(--nw-text) !important; }
+${S} tr.zA.yO .bog,
 ${S} tr.zA.yO .bog * { color: var(--nw-secondary) !important; }
+${S} tr.zA.zE :is(td.yX, .bog, td.xW),
 ${S} tr.zA.zE :is(td.yX, .bog, td.xW) * { font-weight: 600 !important; color: var(--nw-text) !important; }
 ${S} tr.zA .y2,
 ${S} tr.zA .y2 * { color: var(--nw-tertiary) !important; }
 ${S} tr.zA td.xW * { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--nw-secondary); }
-${S} tr.zA .at {
-  border: 0 !important;
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.05) !important;
+${S} tr.zA .at { border-radius: 4px; }
+${S} tr.zA .at .av { font-size: 11px; font-weight: 500; }
+
+${S} .adn .gE { font-family: var(--nw-font); color: var(--nw-secondary); }
+${S} .adn .gD { font-family: var(--nw-font); color: var(--nw-text); }
+${S} .adn .gH { color: var(--nw-secondary); }
+
+${S} .AD:has([g_editable="true"]) .M9 {
+  border-radius: 12px 12px 0 0;
+  background: var(--nw-surface);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
 }
-${S} tr.zA .at .au { border: 0 !important; }
-${S} tr.zA .at .av { color: var(--nw-secondary) !important; font-size: 11px; font-weight: 500; }
+${S} .AD:has([g_editable="true"]) .aYF {
+  background: var(--nw-chrome);
+  color: var(--nw-text);
+  font-family: var(--nw-font);
+}
+${S} .AD input[name="subjectbox"] {
+  color: var(--nw-text);
+  font: 500 14px var(--nw-font);
+}
+${S} .J-M,
+${S} .Kj-JD {
+  border: 1px solid var(--nw-hairline);
+  border-radius: 12px;
+  background: var(--nw-surface);
+  color: var(--nw-text);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+  font-family: var(--nw-font);
+}
+${S} .J-M .J-N { border-radius: 6px; }
+${S} .J-M .J-N:is(:hover, .J-N-JT) { background: var(--nw-wash); }
+${S} :is([gh="cm"], [gh="tm"] [role="button"], .TO a):focus-visible {
+  outline: 2px solid var(--nw-accent);
+  outline-offset: -2px;
+}
 
 ${SPLIT} > .Nt {
   border-color: transparent !important;
@@ -171,7 +216,7 @@ ${SPLIT} > .Nt {
 ${SPLIT} > .Nu.S3 :is(.apc, .apO) { display: none !important; }
 ${SPLIT} > .Nu.S3 .aia > :has(.apb) { flex: 1; }
 ${SPLIT} > .Nu.S3 .apb {
-  padding-top: 30vh;
+  padding: clamp(24px, 20vh, 180px) 16px 24px;
   text-align: center;
   font: 14px var(--nw-font);
   color: var(--nw-tertiary);
@@ -181,6 +226,15 @@ ${SPLIT} tr.zA { flex-wrap: wrap; height: auto !important; row-gap: 2px; }
 ${SPLIT} tr.zA > td.yX { margin-right: auto; }
 ${SPLIT} tr.zA > :is(td.yf, td.xW, td.bq4) { order: 2; }
 ${SPLIT} tr.zA > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: border-box; padding-left: 12px; }
+@media (max-width: 900px) {
+  ${S} .bkK { margin-right: 4px; }
+  ${S} #nowave-splits { padding-inline: 8px; }
+  ${S} header#gb form[role="search"] { width: auto; min-width: 0; }
+  ${SPLIT} > .Nu.S3 .a98 { padding-inline: 12px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  ${S} tr.zA, ${S} [gh="cm"] { transition: none; }
+}
 `;
 
 // Inside the split bar's shadow root, applied while its host has the skin class.
@@ -192,6 +246,7 @@ export const SPLIT_PILLS_CSS = `
   padding: 0;
   border: 0;
   align-items: center;
+  color: var(--nw-text);
   font: 500 14px var(--nw-font);
 }
 :host(.${SKIN_CLASS}) .tab {
@@ -220,14 +275,16 @@ export const SPLIT_PILLS_CSS = `
   top: 0;
   left: 0;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--nw-hairline);
+  pointer-events: none;
 }
+:host(.${SKIN_CLASS}) .pill[hidden] { display: none; }
 `;
 
-// The split bar sits in the visible list's toolbar, where Gmail's select-all, refresh and more buttons were.
-export function toolbarActions() {
-  const toolbar = [...document.querySelectorAll(SELECTORS.toolbar)].find((el) => el.getClientRects().length > 0);
-  return toolbar?.querySelector(SELECTORS.toolbarActions) ?? null;
+// Keep the bar outside Gmail's row container and leave the native toolbar intact.
+export function listToolbar(list) {
+  const view = list.closest(SELECTORS.view) ?? document;
+  return [...view.querySelectorAll(SELECTORS.toolbar)].find((el) => el.getClientRects().length > 0) ?? null;
 }
 
 export function inboxUnread() {
