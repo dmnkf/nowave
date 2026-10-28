@@ -6,7 +6,9 @@
 // Steps:
 //   {hash}: goes to that Gmail view and waits for the list.
 //   {key: "j" | "shift+tab" | "mod+k" | "escape" | "enter" | ...}: presses a real key.
-//   {mouse: [x, y]}: moves the pointer, never clicks.
+//   {mouse: [x, y]}: moves the pointer.
+//   {click: "selector"}: a real click in the middle of the first shown match. Only for controls that open a menu or
+//   panel and change nothing.
 //   {wait: ms}, {shot: name}, {eval: "js"}, {evalFile: "path"}.
 //   {assert: "js"}: stops the run unless it is true.
 //   {shadowText: [host, selector], expect?: text}: prints the text of selector inside host's shadow root, also a
@@ -102,6 +104,19 @@ async function shadowText(host, selector) {
   });
   return found.result.value;
 }
+async function click(selector) {
+  const at = await evaluate(`(() => {
+    const el = [...document.querySelectorAll(${JSON.stringify(selector)})].find((e) => e.getClientRects().length > 0);
+    const r = el?.getBoundingClientRect();
+    return r ? [r.left + r.width / 2, r.top + r.height / 2] : null;
+  })()`);
+  if (!at) throw new Error(`nothing shown matches ${selector}`);
+  const [x, y] = at;
+  await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y });
+  await send('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount: 1 });
+  await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount: 1 });
+  await sleep(300);
+}
 const listShown = `[...document.querySelectorAll('[gh="tl"]')].some((e) => e.getClientRects().length > 0)`;
 
 const NAMED = {
@@ -145,6 +160,7 @@ try {
       await sleep(1200);
     } else if (step.key) await press(step.key);
     else if (step.mouse) await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: step.mouse[0], y: step.mouse[1] });
+    else if (step.click) await click(step.click);
     else if (step.wait) await sleep(step.wait);
     else if (step.eval) console.log('eval', JSON.stringify(await evaluate(step.eval)));
     else if (step.evalFile) console.log('eval', JSON.stringify(await evaluate(readFileSync(step.evalFile, 'utf8'))));
