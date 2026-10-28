@@ -50,7 +50,7 @@ import {
   mainMenu,
   navToggle,
   shownConversation,
-  listToolbar,
+  splitBarAnchor,
 } from './src/skin.js';
 import { createActionQueue } from './src/queue.js';
 import { activeSplitIndex, cycleSplitIndex, parseRoute, splitHash } from './src/route.js';
@@ -236,7 +236,7 @@ function sync() {
     const counts = settings.skin ? settings.splits.map((s) => (s.query === 'in:inbox' ? inboxUnread() : null)) : [];
     splitBar.setSkin(settings.skin);
     splitBar.render(settings.splits, activeSplitIndex(settings.splits, location.hash), counts);
-    splitBar.mountBefore(listToolbar(list) || list);
+    splitBar.mountBefore(splitBarAnchor(list) || list);
   } else {
     splitBar.unmount();
   }

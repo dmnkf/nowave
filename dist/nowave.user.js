@@ -725,6 +725,7 @@ html.${CALM_CLASS}.${SPLITS_MOUNTED_CLASS} [role="main"] [role="tablist"] {
     mainMenu: 'header#gb div[role="button"][aria-expanded]',
     appReady: '[role="main"]',
     toolbar: '[gh="tm"]',
+    toolbarActions: '[gh="mtb"]',
     inboxLink: '[role="navigation"] a[href$="#inbox"]',
     navItem: ".TO",
     navCount: ".bsU",
@@ -775,8 +776,7 @@ ${S} header#gb form[role="search"] {
   max-width: 560px;
   height: auto;
   min-height: 36px;
-  align-self: flex-start;
-  margin: 8px 0 8px 4px;
+  margin: 6px 0 6px -19px;
   border: 0;
   border-radius: 10px;
   background: #eceef1;
@@ -830,7 +830,15 @@ ${S} ${SELECTORS2.nav}.${RAIL_CLASS} [gh="cm"] { width: 40px !important; padding
 ${S} [gh="cm"]:hover { background: var(--nw-hover); }
 
 ${S} ${SELECTORS2.toolbar} { min-height: 44px; background: var(--nw-surface); }
-${S} #nowave-splits { min-width: 0; padding: 8px 12px; background: var(--nw-surface); }
+${S} ${SELECTORS2.toolbar} :has(> #nowave-splits) { align-items: center; }
+${S} #nowave-splits {
+  flex: none;
+  min-width: 0;
+  margin: 0 12px 0 -8px;
+  padding-right: 12px;
+  border-right: 1px solid var(--nw-hairline);
+  background: var(--nw-surface);
+}
 
 ${S} tr.zA > td.PF { display: none !important; }
 ${S} tr.zA > :is(td.oZ-x3, td.apU, td.WA) { opacity: 0.6; }
@@ -984,9 +992,10 @@ ${SPLIT} tr.zA > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: borde
 }
 :host(.${SKIN_CLASS}) .pill[hidden] { display: none; }
 `;
-  function listToolbar(list) {
+  function splitBarAnchor(list) {
     const view = list.closest(SELECTORS2.view) ?? document;
-    return [...view.querySelectorAll(SELECTORS2.toolbar)].find((el2) => el2.getClientRects().length > 0) ?? null;
+    const toolbar = [...view.querySelectorAll(SELECTORS2.toolbar)].find((el2) => el2.getClientRects().length > 0);
+    return toolbar?.querySelector(SELECTORS2.toolbarActions) ?? toolbar ?? null;
   }
   function inboxUnread() {
     const item = document.querySelector(SELECTORS2.inboxLink)?.closest(SELECTORS2.navItem);
@@ -1738,7 +1747,7 @@ kbd {
       const counts = settings.skin ? settings.splits.map((s) => s.query === "in:inbox" ? inboxUnread() : null) : [];
       splitBar.setSkin(settings.skin);
       splitBar.render(settings.splits, activeSplitIndex(settings.splits, location.hash), counts);
-      splitBar.mountBefore(listToolbar(list) || list);
+      splitBar.mountBefore(splitBarAnchor(list) || list);
     } else {
       splitBar.unmount();
     }

@@ -9,6 +9,7 @@ const SELECTORS = {
   mainMenu: 'header#gb div[role="button"][aria-expanded]',
   appReady: '[role="main"]',
   toolbar: '[gh="tm"]',
+  toolbarActions: '[gh="mtb"]',
   inboxLink: '[role="navigation"] a[href$="#inbox"]',
   navItem: '.TO',
   navCount: '.bsU',
@@ -70,8 +71,7 @@ ${S} header#gb form[role="search"] {
   max-width: 560px;
   height: auto;
   min-height: 36px;
-  align-self: flex-start;
-  margin: 8px 0 8px 4px;
+  margin: 6px 0 6px -19px;
   border: 0;
   border-radius: 10px;
   background: #eceef1;
@@ -125,7 +125,15 @@ ${S} ${SELECTORS.nav}.${RAIL_CLASS} [gh="cm"] { width: 40px !important; padding:
 ${S} [gh="cm"]:hover { background: var(--nw-hover); }
 
 ${S} ${SELECTORS.toolbar} { min-height: 44px; background: var(--nw-surface); }
-${S} #nowave-splits { min-width: 0; padding: 8px 12px; background: var(--nw-surface); }
+${S} ${SELECTORS.toolbar} :has(> #nowave-splits) { align-items: center; }
+${S} #nowave-splits {
+  flex: none;
+  min-width: 0;
+  margin: 0 12px 0 -8px;
+  padding-right: 12px;
+  border-right: 1px solid var(--nw-hairline);
+  background: var(--nw-surface);
+}
 
 ${S} tr.zA > td.PF { display: none !important; }
 ${S} tr.zA > :is(td.oZ-x3, td.apU, td.WA) { opacity: 0.6; }
@@ -282,10 +290,12 @@ export const SPLIT_PILLS_CSS = `
 :host(.${SKIN_CLASS}) .pill[hidden] { display: none; }
 `;
 
-// Keep the bar outside Gmail's row container and leave the native toolbar intact.
-export function listToolbar(list) {
+// The split tabs open Gmail's own control row, ahead of select, refresh and more, so tabs and controls share one
+// line. Never inside the thread list itself: Gmail stops archiving when anything is added there.
+export function splitBarAnchor(list) {
   const view = list.closest(SELECTORS.view) ?? document;
-  return [...view.querySelectorAll(SELECTORS.toolbar)].find((el) => el.getClientRects().length > 0) ?? null;
+  const toolbar = [...view.querySelectorAll(SELECTORS.toolbar)].find((el) => el.getClientRects().length > 0);
+  return toolbar?.querySelector(SELECTORS.toolbarActions) ?? toolbar ?? null;
 }
 
 export function inboxUnread() {

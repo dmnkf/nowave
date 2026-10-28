@@ -52,7 +52,7 @@ test('keeps native actions, search filters, apps and side panel beside the split
   for (const name of ['Select all', 'Refresh', 'Archive', 'More', 'Has attachment', 'Google apps', 'Help', 'Tasks']) {
     await expect(page.getByRole('button', { name, exact: true })).toBeVisible();
   }
-  expect(await page.locator('#nowave-splits').evaluate(el => !el.closest('[gh="tl"]') && el.nextElementSibling.matches('[gh="tm"]'))).toBe(true);
+  expect(await page.locator('#nowave-splits').evaluate(el => !el.closest('[gh="tl"]') && !!el.closest('[gh="tm"]') && el.nextElementSibling.matches('[gh="mtb"]'))).toBe(true);
   await page.getByRole('button', { name: 'Select all', exact: true }).click();
   await expect(page.getByRole('checkbox', { name: 'Select Linear' })).toHaveAttribute('aria-checked', 'true');
 });
