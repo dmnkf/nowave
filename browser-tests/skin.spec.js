@@ -63,7 +63,7 @@ test('keeps selection and stars operable and does not mistake a star for a selec
   expect(await style(read, 'backgroundColor')).toBe('rgba(0, 0, 0, 0)');
   await expect(page.getByRole('checkbox', { name: 'Star Figma' })).toBeVisible();
   await page.getByRole('checkbox', { name: 'Select Figma' }).click();
-  expect(await style(read, 'backgroundColor')).toBe('rgb(226, 232, 253)');
+  await expect(read).toHaveCSS('background-color', 'rgb(226, 232, 253)');
   await page.getByRole('checkbox', { name: 'Star Figma' }).click();
   await expect(page.getByRole('checkbox', { name: 'Star Figma' })).toHaveAttribute('aria-checked', 'false');
 });
@@ -148,10 +148,12 @@ test('wraps rows only in a vertical reading pane and restores single-line rows a
   expect(await style(page.locator('#unread-row'), 'flexWrap')).toBe('nowrap');
   await page.locator('[gh="tl"]').evaluate(el => el.classList.add('Nm'));
   expect(await style(page.locator('#unread-row'), 'flexWrap')).toBe('wrap');
+  await expect(page.locator('#unread-row')).toHaveCSS('padding-top', '8px');
   const sender = await page.locator('#unread-row .yX').boundingBox();
   const subject = await page.locator('#unread-row .a4W').boundingBox();
   expect(subject.y).toBeGreaterThan(sender.y);
-  await expect(page.getByText('No conversations selected', { exact: true })).toBeVisible();
+  await expect(page.locator('.apb')).toBeVisible();
+  await expect(page.locator('.apb')).toContainText('No conversations selected');
   await page.locator('[gh="tl"]').evaluate(el => el.classList.remove('Nm'));
   expect(await style(page.locator('#unread-row'), 'height')).toBe('42px');
 });
@@ -222,4 +224,38 @@ test('mounts outside the list when the native toolbar is absent and follows a re
   });
   await expect(page.locator('#nowave-splits')).toHaveCount(1);
   await aligned(page);
+});
+
+test('renders the interactive demo with the real skin and switches baseline and surfaces', async ({ page }) => {
+  await open(page);
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/dev/preview.html');
+  const mail = page.frameLocator('iframe');
+  await expect(mail.locator('tr.zA')).toHaveCount(16);
+  await expect(mail.locator('html')).toHaveClass(/nowave-skin/);
+  await page.getByRole('button', { name: 'Gmail-style baseline', exact: true }).click();
+  await expect(mail.locator('html')).toHaveClass(/native-demo/);
+  await expect(mail.locator('html')).not.toHaveClass(/nowave-skin/);
+  await expect(mail.locator('nav.aeN')).not.toHaveClass(/bhZ/);
+  await page.getByRole('button', { name: 'With Nowave', exact: true }).click();
+  await expect(mail.locator('html')).toHaveClass(/nowave-skin/);
+  await page.getByRole('button', { name: 'Reading pane', exact: true }).click();
+  await expect(mail.locator('[gh="tl"]')).toHaveClass(/Nm/);
+  await expect(mail.locator('.Nu.S3 h2')).toHaveText('Friday’s design review');
+  await page.getByRole('button', { name: 'Thread', exact: true }).click();
+  await expect(mail.locator('#thread-view')).toBeVisible();
+  await page.getByRole('button', { name: 'Compose', exact: true }).click();
+  await expect(mail.locator('#compose')).toBeVisible();
+  await page.getByRole('button', { name: '⌘K Palette', exact: true }).click();
+  await expect.poll(() => mail.locator('body').evaluate(() => {
+    const root = window.fixtureRoots.get('nowave-palette');
+    return Boolean(root?.querySelector('input').getClientRects().length);
+  })).toBe(true);
+  await page.getByRole('button', { name: 'Inbox', exact: true }).click();
+  await expect.poll(() => mail.locator('body').evaluate(() => {
+    const root = window.fixtureRoots.get('nowave-palette');
+    return Boolean(root?.querySelector('input').getClientRects().length);
+  })).toBe(false);
+  expect(errors).toEqual([]);
 });

@@ -32,6 +32,7 @@
     [gh="mtb"], [gh="tm"] [role="toolbar"] { display: flex; gap: 8px; align-items: center; }
     [role="toolbar"] { padding-block: 4px; }
     [role="complementary"] { width: 48px; text-align: center; padding-top: 12px; }
+    [role="complementary"] button { max-width: 100%; padding: 4px; font-size: 12px; }
     [gh="tl"] { display: flex; }
     .Nu.tf { flex: 1; min-width: 0; }
     .Nu.S3 { display: none; flex: 1; min-width: 0; }
@@ -67,6 +68,12 @@
     .J-N { padding: 8px; }
     .Kj-JD { position: fixed; top: 30%; left: 25%; width: 50%; z-index: 40; }
   </style>
+  <script>
+    const demoParams = new URLSearchParams(location.search);
+    if (demoParams.has('preview') && demoParams.has('skin')) {
+      localStorage.setItem('nowave', JSON.stringify({ skin: demoParams.get('skin') !== 'native' }));
+    }
+  </script>
   <script src="/dist/nowave.user.js"></script>
 </head>
 <body>
@@ -79,7 +86,7 @@
   </div></header>
   <div class="aqk">
     <nav role="navigation" class="aeN bhZ">
-      <div gh="cm" role="button" tabindex="0">Compose</div>
+      <div gh="cm" role="button" tabindex="0" aria-label="Compose">Compose</div>
       <div class="TO"><a href="#inbox" aria-current="page">Inbox</a><span class="bsU">3</span></div>
       <div class="TO"><a href="#starred">Starred</a></div>
       <div class="TO"><a href="#sent">Sent</a></div>
@@ -143,6 +150,9 @@
     document.querySelector('form input').oninput = e => document.querySelector('#suggestions').hidden = !e.target.value;
     for (const box of document.querySelectorAll('[role="checkbox"]')) box.onclick = () => box.setAttribute('aria-checked', String(box.getAttribute('aria-checked') !== 'true'));
     document.querySelector('#select-all').onclick = () => document.querySelectorAll('td.oZ-x3 [role="checkbox"]').forEach(box => box.setAttribute('aria-checked', 'true'));
+    if (new URLSearchParams(location.search).has('preview')) {
+      await import('./preview.js');
+    }
   </script>
 </body>
 </html>

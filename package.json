@@ -12,10 +12,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "npm run build && esbuild --servedir=. --serve=127.0.0.1:4173",
     "test": "node --test",
     "build": "node build.mjs",
     "test:browser": "npm run build && playwright test",
-    "check": "node --check nowave.user.js && node --check src/skin.js && node --check src/splitbar.js && node --check src/palette.js"
+    "check": "node --check nowave.user.js && node --check src/skin.js && node --check src/splitbar.js && node --check src/palette.js && node --check dev/preview.js && node --check playwright.config.js && node --check browser-tests/skin.spec.js"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",

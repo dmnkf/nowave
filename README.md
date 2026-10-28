@@ -137,6 +137,8 @@ npm run test:browser
 
 `npm run test:browser` builds the shipped userscript and runs Chromium contract tests against `dev/fixture.html`: native control visibility, list and reading-pane layout, custom labels, thread/compose formatting boundaries, menus, settings, skin toggling, dark OS preference, split overflow, focus, resize, and reduced motion. CI runs these too. The fixture contains representative Gmail hooks, not a captured or authenticated Gmail DOM. It prevents regressions in our CSS and mounting logic but cannot prove Gmail still uses those hooks. New compose/menu hooks are explicitly unverified on live Gmail in `docs/gmail-contract.md`. Gmail's trusted-key path still needs a real account.
 
+For an interactive visual preview, run `npm run dev` and open `http://127.0.0.1:4173/dev/preview.html`. Switch between the Gmail-style baseline and the actual Nowave skin, and inspect the inbox, reading pane, thread, compose, and command palette. The preview adds representative Gmail baseline styling and synthetic mail to the contract fixture; it is not an authenticated Gmail session. Actions that would change real mail show a demo notice instead.
+
 | File | Owns |
 | --- | --- |
 | `nowave.user.js` | Userscript header, settings persistence, the key listener, the sync loop |

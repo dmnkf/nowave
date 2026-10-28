@@ -222,7 +222,7 @@ ${SPLIT} > .Nu.S3 .apb {
   color: var(--nw-tertiary);
 }
 ${SPLIT} > .Nu.S3 .a98 { padding: 12px 28px 32px 12px !important; }
-${SPLIT} tr.zA { flex-wrap: wrap; height: auto !important; row-gap: 2px; }
+${SPLIT} tr.zA { flex-wrap: wrap; height: auto !important; padding-block: 8px !important; row-gap: 2px; }
 ${SPLIT} tr.zA > td.yX { margin-right: auto; }
 ${SPLIT} tr.zA > :is(td.yf, td.xW, td.bq4) { order: 2; }
 ${SPLIT} tr.zA > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: border-box; padding-left: 12px; }

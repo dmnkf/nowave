@@ -6,14 +6,14 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   use: {
-    baseURL: 'http://127.0.0.1:4173',
+    baseURL: 'http://127.0.0.1:4174',
     viewport: { width: 1280, height: 800 },
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: 'node_modules/.bin/esbuild --servedir=. --serve=127.0.0.1:4173',
-    url: 'http://127.0.0.1:4173/dev/fixture.html',
+    command: 'node_modules/.bin/esbuild --servedir=. --serve=127.0.0.1:4174',
+    url: 'http://127.0.0.1:4174/dev/fixture.html',
     reuseExistingServer: !process.env.CI,
   },
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
