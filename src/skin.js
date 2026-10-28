@@ -68,9 +68,10 @@ ${S} header#gb a[href$="#inbox"] {
 }
 ${S} header#gb form[role="search"] {
   max-width: 560px;
-  height: 36px;
-  min-height: 0;
-  margin: 6px 0 6px 4px;
+  height: auto;
+  min-height: 36px;
+  align-self: flex-start;
+  margin: 8px 0 8px 4px;
   border: 0;
   border-radius: 10px;
   background: #eceef1;
