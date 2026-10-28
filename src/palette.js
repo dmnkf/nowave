@@ -1,6 +1,6 @@
 import { chordFromEvent, formatChord, isModifierKey } from './keys.js';
 import { rankCommands } from './rank.js';
-import { EASE, reducedMotion } from './skin.js';
+import { EASE, SKIN_CLASS, reducedMotion } from './skin.js';
 
 const CSS = `
 :host {
@@ -21,6 +21,15 @@ const CSS = `
     --selected: rgba(168, 199, 250, 0.14);
     --chip: #303134;
   }
+}
+:host(.${SKIN_CLASS}) {
+  color-scheme: light;
+  --bg: var(--nw-surface);
+  --fg: var(--nw-text);
+  --muted: var(--nw-secondary);
+  --line: var(--nw-hairline);
+  --selected: var(--nw-wash);
+  --chip: var(--nw-chrome);
 }
 .backdrop {
   position: fixed;
@@ -294,6 +303,9 @@ export function createPalette({ isMac, onRun, onOpenChange }) {
   const letsThrough = (e) => mode?.kind === 'notice' && mode.through && !isModifierKey(e) && e.key !== 'Enter';
 
   return {
+    setSkin(on) {
+      host.classList.toggle(SKIN_CLASS, on);
+    },
     isOpen,
     close,
     handleKey,

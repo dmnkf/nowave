@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         nowave
 // @namespace    https://github.com/dmnkf/nowave
-// @version      1.0.0
+// @version      1.0.1
 // @description  Shortwave-style keys, a command palette and split inbox tabs for Gmail. No AI.
 // @author       Dominik Filliger
 // @license      MIT
@@ -725,7 +725,6 @@ html.${CALM_CLASS}.${SPLITS_MOUNTED_CLASS} [role="main"] [role="tablist"] {
     mainMenu: 'header#gb div[role="button"][aria-expanded]',
     appReady: '[role="main"]',
     toolbar: '[gh="tm"]',
-    toolbarActions: '[gh="mtb"]',
     inboxLink: '[role="navigation"] a[href$="#inbox"]',
     navItem: ".TO",
     navCount: ".bsU",
@@ -745,27 +744,31 @@ html.${CALM_CLASS}.${SPLITS_MOUNTED_CLASS} [role="main"] [role="tablist"] {
 ${S} {
   --nw-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, "Segoe UI", Roboto, sans-serif;
   --nw-text: #1c1d1f;
+  --nw-surface: #ffffff;
   --nw-secondary: #5f636b;
-  --nw-tertiary: #8a8f98;
+  --nw-tertiary: #6b7280;
   --nw-hairline: rgba(0, 0, 0, 0.06);
   --nw-chrome: #f7f7f8;
   --nw-accent: #3d63f2;
   --nw-wash: #eef2fe;
   --nw-hover: #f5f6f8;
+  --nw-selected: #e2e8fd;
   --nw-ease: ${EASE};
+  color-scheme: light;
 }
 ${S} body,
 ${S} .wl { background: var(--nw-chrome) !important; }
 ${S} .bkK { margin-right: 8px; }
-${S} .bkK > .nH { border-radius: 12px; box-shadow: 0 0 0 1px var(--nw-hairline); }
+${S} .bkK > .nH {
+  border-radius: 12px;
+  background: var(--nw-surface);
+  box-shadow: 0 0 0 1px var(--nw-hairline);
+}
 
-${S} header#gb { height: 52px; overflow: hidden; }
+${S} header#gb { min-height: 52px; height: auto; }
 ${S} header#gb > div:has([role="search"]) { height: 52px; padding-block: 0; align-items: center; }
 ${S} header#gb div:has(> div[role="button"][aria-expanded]) { flex: none !important; min-width: 0 !important; }
-${S} header#gb a[href$="#inbox"],
-${S} header#gb #gbwa,
-${S} header#gb .zo,
-${S} .aqk > div:has(> .aUx [role="complementary"]) {
+${S} header#gb a[href$="#inbox"] {
   display: none !important;
 }
 ${S} header#gb form[role="search"] {
@@ -780,12 +783,21 @@ ${S} header#gb form[role="search"] {
 }
 ${S} header#gb form[role="search"] > :is(div, button) { height: 36px; }
 ${S} header#gb form[role="search"] input { font: 14px var(--nw-font); color: var(--nw-text); }
+${S} header#gb form[role="search"]:focus-within {
+  background: var(--nw-surface);
+  box-shadow: 0 0 0 2px var(--nw-accent);
+}
 ${S} header#gb a[href*="accounts.google.com/SignOutOptions"] { transform: scale(0.8); }
 
 ${S} [role="navigation"].aeN {
   background: var(--nw-chrome);
   box-shadow: inset -1px 0 var(--nw-hairline);
 }
+${S} [role="navigation"] .TO { border-radius: 8px; }
+${S} [role="navigation"] .TO a { font-family: var(--nw-font); }
+${S} [role="navigation"] .TO:hover { background: var(--nw-hover); }
+${S} [role="navigation"] .TO:has(a[aria-current="page"]) { background: var(--nw-wash); }
+${S} [role="navigation"] .bsU { font: 500 11px var(--nw-font); color: var(--nw-secondary); }
 ${S} [gh="cm"] {
   interpolate-size: allow-keywords;
   box-sizing: border-box;
@@ -798,7 +810,7 @@ ${S} [gh="cm"] {
   overflow: hidden;
   white-space: nowrap;
   border-radius: 10px !important;
-  background: #ffffff;
+  background: var(--nw-surface);
   color: var(--nw-text);
   font: 500 14px/20px var(--nw-font) !important;
   box-shadow: 0 0 0 1px var(--nw-hairline), 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -816,12 +828,13 @@ ${S} [gh="cm"]::before {
 ${S} ${SELECTORS2.nav}.${RAIL_CLASS} [gh="cm"] { width: 40px !important; padding: 0 10px !important; }
 ${S} [gh="cm"]:hover { background: var(--nw-hover); }
 
-${S} ${SELECTORS2.toolbar} { display: flex !important; align-items: center; height: 44px !important; }
-${S} ${SELECTORS2.toolbar} > :has(> #nowave-splits) { height: 32px; align-items: center; }
-${S} ${SELECTORS2.toolbar}:has(#nowave-splits) :is(${SELECTORS2.toolbarActions}, [role="toolbar"]) { display: none !important; }
-${S} ${SELECTORS2.toolbar} #nowave-splits { flex: 1; min-width: 0; margin-left: -8px; }
+${S} ${SELECTORS2.toolbar} { min-height: 44px; background: var(--nw-surface); }
+${S} #nowave-splits { min-width: 0; padding: 8px 12px; background: var(--nw-surface); }
 
-${S} tr.zA > :is(td.PF, td.oZ-x3, td.apU, td.WA) { display: none !important; }
+${S} tr.zA > td.PF { display: none !important; }
+${S} tr.zA > :is(td.oZ-x3, td.apU, td.WA) { opacity: 0.6; }
+${S} tr.zA:is(:hover, :focus-within, .x7) > :is(td.oZ-x3, td.apU, td.WA),
+${S} tr.zA > :is(td.oZ-x3, td.apU, td.WA):has([aria-checked="true"]) { opacity: 1; }
 ${S} tr.zA {
   margin-inline: 8px;
   border-radius: 8px;
@@ -839,7 +852,7 @@ ${S} tr.zA > td:not(.bq4),
 ${S} tr.zA > td:not(.bq4) * { font-family: var(--nw-font) !important; }
 ${S} tr.zA > td.yX { padding-left: 12px; }
 ${S} tr.zA:hover { background: var(--nw-hover) !important; }
-${S} tr.zA:has([role="checkbox"][aria-checked="true"]) { background: #e2e8fd !important; }
+${S} tr.zA:has(td.oZ-x3 [role="checkbox"][aria-checked="true"]) { background: var(--nw-selected) !important; }
 ${S} tr.zA.btb {
   background: var(--nw-wash) !important;
   box-shadow: inset 3px 0 var(--nw-accent) !important;
@@ -855,19 +868,51 @@ ${S} h3.Wr .qh {
 ${S} h3.Wr img.qi { opacity: 0.4; transform: scale(0.75); }
 ${S} .Wg .Dj,
 ${S} .Wg .Dj * { font: 500 11px/16px var(--nw-font) !important; color: var(--nw-tertiary) !important; }
+${S} tr.zA :is(td.yX, .bog),
 ${S} tr.zA :is(td.yX, .bog) * { font-weight: 400 !important; color: var(--nw-text) !important; }
+${S} tr.zA.yO .bog,
 ${S} tr.zA.yO .bog * { color: var(--nw-secondary) !important; }
+${S} tr.zA.zE :is(td.yX, .bog, td.xW),
 ${S} tr.zA.zE :is(td.yX, .bog, td.xW) * { font-weight: 600 !important; color: var(--nw-text) !important; }
 ${S} tr.zA .y2,
 ${S} tr.zA .y2 * { color: var(--nw-tertiary) !important; }
 ${S} tr.zA td.xW * { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--nw-secondary); }
-${S} tr.zA .at {
-  border: 0 !important;
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.05) !important;
+${S} tr.zA .at { border-radius: 4px; }
+${S} tr.zA .at .av { font-size: 11px; font-weight: 500; }
+
+${S} .adn .gE { font-family: var(--nw-font); color: var(--nw-secondary); }
+${S} .adn .gD { font-family: var(--nw-font); color: var(--nw-text); }
+${S} .adn .gH { color: var(--nw-secondary); }
+
+${S} .AD:has([g_editable="true"]) .M9 {
+  border-radius: 12px 12px 0 0;
+  background: var(--nw-surface);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
 }
-${S} tr.zA .at .au { border: 0 !important; }
-${S} tr.zA .at .av { color: var(--nw-secondary) !important; font-size: 11px; font-weight: 500; }
+${S} .AD:has([g_editable="true"]) .aYF {
+  background: var(--nw-chrome);
+  color: var(--nw-text);
+  font-family: var(--nw-font);
+}
+${S} .AD input[name="subjectbox"] {
+  color: var(--nw-text);
+  font: 500 14px var(--nw-font);
+}
+${S} .J-M,
+${S} .Kj-JD {
+  border: 1px solid var(--nw-hairline);
+  border-radius: 12px;
+  background: var(--nw-surface);
+  color: var(--nw-text);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+  font-family: var(--nw-font);
+}
+${S} .J-M .J-N { border-radius: 6px; }
+${S} .J-M .J-N:is(:hover, .J-N-JT) { background: var(--nw-wash); }
+${S} :is([gh="cm"], [gh="tm"] [role="button"], .TO a):focus-visible {
+  outline: 2px solid var(--nw-accent);
+  outline-offset: -2px;
+}
 
 ${SPLIT} > .Nt {
   border-color: transparent !important;
@@ -876,16 +921,25 @@ ${SPLIT} > .Nt {
 ${SPLIT} > .Nu.S3 :is(.apc, .apO) { display: none !important; }
 ${SPLIT} > .Nu.S3 .aia > :has(.apb) { flex: 1; }
 ${SPLIT} > .Nu.S3 .apb {
-  padding-top: 30vh;
+  padding: clamp(24px, 20vh, 180px) 16px 24px;
   text-align: center;
   font: 14px var(--nw-font);
   color: var(--nw-tertiary);
 }
 ${SPLIT} > .Nu.S3 .a98 { padding: 12px 28px 32px 12px !important; }
-${SPLIT} tr.zA { flex-wrap: wrap; height: auto !important; row-gap: 2px; }
+${SPLIT} tr.zA { flex-wrap: wrap; height: auto !important; padding-block: 8px !important; row-gap: 2px; }
 ${SPLIT} tr.zA > td.yX { margin-right: auto; }
 ${SPLIT} tr.zA > :is(td.yf, td.xW, td.bq4) { order: 2; }
 ${SPLIT} tr.zA > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: border-box; padding-left: 12px; }
+@media (max-width: 900px) {
+  ${S} .bkK { margin-right: 4px; }
+  ${S} #nowave-splits { padding-inline: 8px; }
+  ${S} header#gb form[role="search"] { width: auto; min-width: 0; }
+  ${SPLIT} > .Nu.S3 .a98 { padding-inline: 12px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  ${S} tr.zA, ${S} [gh="cm"] { transition: none; }
+}
 `;
   var SPLIT_PILLS_CSS = `
 :host(.${SKIN_CLASS}) .bar {
@@ -895,6 +949,7 @@ ${SPLIT} tr.zA > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: borde
   padding: 0;
   border: 0;
   align-items: center;
+  color: var(--nw-text);
   font: 500 14px var(--nw-font);
 }
 :host(.${SKIN_CLASS}) .tab {
@@ -923,12 +978,14 @@ ${SPLIT} tr.zA > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: borde
   top: 0;
   left: 0;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--nw-hairline);
+  pointer-events: none;
 }
+:host(.${SKIN_CLASS}) .pill[hidden] { display: none; }
 `;
-  function toolbarActions() {
-    const toolbar = [...document.querySelectorAll(SELECTORS2.toolbar)].find((el2) => el2.getClientRects().length > 0);
-    return toolbar?.querySelector(SELECTORS2.toolbarActions) ?? null;
+  function listToolbar(list) {
+    const view = list.closest(SELECTORS2.view) ?? document;
+    return [...view.querySelectorAll(SELECTORS2.toolbar)].find((el2) => el2.getClientRects().length > 0) ?? null;
   }
   function inboxUnread() {
     const item = document.querySelector(SELECTORS2.inboxLink)?.closest(SELECTORS2.navItem);
@@ -1023,6 +1080,15 @@ ${SPLIT} tr.zA > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: borde
     --selected: rgba(168, 199, 250, 0.14);
     --chip: #303134;
   }
+}
+:host(.${SKIN_CLASS}) {
+  color-scheme: light;
+  --bg: var(--nw-surface);
+  --fg: var(--nw-text);
+  --muted: var(--nw-secondary);
+  --line: var(--nw-hairline);
+  --selected: var(--nw-wash);
+  --chip: var(--nw-chrome);
 }
 .backdrop {
   position: fixed;
@@ -1272,6 +1338,9 @@ kbd {
     }
     const letsThrough = (e) => mode?.kind === "notice" && mode.through && !isModifierKey(e) && e.key !== "Enter";
     return {
+      setSkin(on) {
+        host.classList.toggle(SKIN_CLASS, on);
+      },
       isOpen,
       close,
       handleKey,
@@ -1346,6 +1415,8 @@ kbd {
   var CSS2 = `
 :host {
   display: block;
+  min-width: 0;
+  max-width: 100%;
   --accent: #0b57d0;
   --line: rgba(0, 0, 0, 0.08);
 }
@@ -1378,6 +1449,7 @@ kbd {
   white-space: nowrap;
 }
 .tab:hover { opacity: 0.9; }
+.tab:focus-visible { outline: 2px solid var(--nw-accent, var(--accent)); outline-offset: -2px; border-radius: 8px; }
 .tab[aria-selected="true"] {
   opacity: 1;
   border-bottom-color: var(--accent);
@@ -1395,21 +1467,58 @@ kbd {
     bar.setAttribute("aria-label", "Splits");
     root.append(style2, bar);
     bar.addEventListener("mousedown", (e) => e.preventDefault());
+    bar.addEventListener("keydown", (e) => {
+      const tabs = [...bar.querySelectorAll(".tab")];
+      const index = tabs.indexOf(root.activeElement);
+      if (index < 0) return;
+      let next;
+      if (e.key === "ArrowRight") next = (index + 1) % tabs.length;
+      else if (e.key === "ArrowLeft") next = (index + tabs.length - 1) % tabs.length;
+      else if (e.key === "Home") next = 0;
+      else if (e.key === "End") next = tabs.length - 1;
+      else return;
+      e.preventDefault();
+      e.stopPropagation();
+      tabs[next].focus({ preventScroll: true });
+      onSelect(next);
+    });
     const pill = document.createElement("div");
     pill.className = "pill";
     let rendered = "";
     let placed = null;
     let needsPlace = false;
+    let frame = null;
+    const observer = new ResizeObserver(() => {
+      if (frame !== null) return;
+      frame = requestAnimationFrame(() => {
+        frame = null;
+        if (host.isConnected) place();
+      });
+    });
+    function observe() {
+      observer.disconnect();
+      observer.observe(bar);
+      for (const tab of bar.querySelectorAll(".tab")) observer.observe(tab);
+    }
     function place() {
       needsPlace = false;
       const tab = bar.querySelector('[aria-selected="true"]');
-      if (!tab || !host.classList.contains(SKIN_CLASS)) {
+      pill.hidden = !tab || !host.classList.contains(SKIN_CLASS);
+      if (tab) {
+        const left = tab.getBoundingClientRect().left - bar.getBoundingClientRect().left + bar.scrollLeft;
+        if (left < bar.scrollLeft) bar.scrollLeft = left;
+        else if (left + tab.offsetWidth > bar.scrollLeft + bar.clientWidth) {
+          bar.scrollLeft = left + tab.offsetWidth - bar.clientWidth;
+        }
+      }
+      if (pill.hidden) {
         placed = null;
         return;
       }
       const next = { transform: `translate(${tab.offsetLeft}px, ${tab.offsetTop}px)`, width: `${tab.offsetWidth}px` };
       if (placed?.transform === next.transform && placed.width === next.width) return;
       Object.assign(pill.style, next, { height: `${tab.offsetHeight}px` });
+      for (const animation of pill.getAnimations()) animation.cancel();
       if (placed && !reducedMotion()) pill.animate([placed, next], { duration: 220, easing: EASE });
       placed = next;
     }
@@ -1424,13 +1533,14 @@ kbd {
         if (key === rendered) return;
         rendered = key;
         needsPlace = true;
+        const focused = bar.contains(root.activeElement);
         bar.replaceChildren(
           pill,
           ...splits.map((split, i) => {
             const tab = document.createElement("button");
             tab.className = "tab";
             tab.type = "button";
-            tab.tabIndex = -1;
+            tab.tabIndex = i === (active < 0 ? 0 : active) ? 0 : -1;
             tab.setAttribute("role", "tab");
             tab.setAttribute("aria-selected", String(i === active));
             tab.textContent = split.name;
@@ -1445,16 +1555,24 @@ kbd {
             return tab;
           })
         );
+        if (focused) bar.querySelector('[tabindex="0"]')?.focus({ preventScroll: true });
+        if (host.isConnected) observe();
       },
       // Idempotent: Gmail re-renders constantly and this runs on every settled mutation batch.
       mountBefore(anchor) {
         if (host.parentNode !== anchor.parentNode || host.nextSibling !== anchor) {
           anchor.parentNode.insertBefore(host, anchor);
+          observe();
           needsPlace = true;
         }
         if (needsPlace) place();
       },
       unmount() {
+        observer.disconnect();
+        if (frame !== null) cancelAnimationFrame(frame);
+        frame = null;
+        placed = null;
+        needsPlace = true;
         host.remove();
       }
     };
@@ -1608,6 +1726,7 @@ kbd {
       window.dispatchEvent(new Event("resize"));
     }
     syncNav();
+    palette.setSkin(settings.skin);
     railPin.sync(settings.skin);
     syncGmailKeys();
     const view = parseRoute(location.hash).view;
@@ -1618,7 +1737,7 @@ kbd {
       const counts = settings.skin ? settings.splits.map((s) => s.query === "in:inbox" ? inboxUnread() : null) : [];
       splitBar.setSkin(settings.skin);
       splitBar.render(settings.splits, activeSplitIndex(settings.splits, location.hash), counts);
-      splitBar.mountBefore(settings.skin && toolbarActions() || list);
+      splitBar.mountBefore(listToolbar(list) || list);
     } else {
       splitBar.unmount();
     }

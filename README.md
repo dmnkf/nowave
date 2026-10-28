@@ -94,7 +94,11 @@ To add a split, search for something and run "Save search as split…" from the 
 
 ## The Shortwave look
 
-nowave restyles Gmail's light theme to look like Shortwave: a compact header, the navigation folded into an icon rail, rows without checkboxes, stars, or dividers, and a soft highlight on the cursor row. Calm mode, which is separate, hides Gemini buttons, the Google One upgrade link, and Gmail's category tabs while the split tabs show.
+nowave restyles Gmail's light theme to look like Shortwave: a compact header, the navigation folded into an icon rail, quiet rows without dividers, and a soft highlight on the cursor row. Checkboxes, stars, importance markers, native toolbar actions, search filters, and the Google side panel stay available. Your label colors are preserved.
+
+The look also covers conversation headings and metadata, compose chrome, and Gmail's native menus and dialogs. It does not restyle email bodies, signatures, or the text you are composing. Split tabs sit above the native list toolbar, scroll when space is tight, and support arrow keys, Home, and End when focused. The palette follows the light skin rather than your OS color scheme while the look is enabled.
+
+Calm mode, which is separate, hides Gemini buttons, the Google One upgrade link, and Gmail's category tabs while the split tabs show.
 
 Both are on by default. To turn either off, run "Toggle Shortwave look" or "Toggle calm mode" from the palette.
 
@@ -112,7 +116,7 @@ If you changed Gmail's shortcuts with custom keyboard shortcuts, nowave reads th
 - Shortcut detection and a few selectors read English text, so they need Gmail in English. Everything else works in any language.
 - The look styles Gmail's light theme only.
 - That Gmail refuses synthetic delete, spam, and mute keys, like archive, is inferred and not checked, because checking changes mail.
-- nowave is tested only in Ardia.
+- Live Gmail behavior has been tested only in Ardia; automated Chromium checks use a representative DOM fixture, not Gmail itself.
 
 ## Development
 
@@ -121,12 +125,19 @@ You need Node.js 22 or later.
 ```sh
 npm ci
 npm test
+npm run check
 npm run build
+npx playwright install chromium
+npm run test:browser
 ```
 
 `npm run build` bundles `nowave.user.js` and `src/` with esbuild into `dist/nowave.user.js` and keeps the userscript header at the top. Commit the rebuilt file with your change, because CI fails when `dist/` does not match the source.
 
-The tests cover the modules that need no DOM: keys, routes, ranking, settings, the command registry, the action queue, and Gmail's shortcut notation. The palette, the real-key path, and the look need a real Gmail.
+`npm test` covers the modules that need no DOM: keys, routes, ranking, settings, the command registry, the action queue, and Gmail's shortcut notation. `npm run check` checks JavaScript syntax; this JavaScript-only project has no separate linter or type checker configured.
+
+`npm run test:browser` builds the shipped userscript and runs Chromium contract tests against `dev/fixture.html`: native control visibility, list and reading-pane layout, custom labels, thread/compose formatting boundaries, menus, settings, skin toggling, dark OS preference, split overflow, focus, resize, and reduced motion. CI runs these too. The fixture contains representative Gmail hooks, not a captured or authenticated Gmail DOM. It prevents regressions in our CSS and mounting logic but cannot prove Gmail still uses those hooks. New compose/menu hooks are explicitly unverified on live Gmail in `docs/gmail-contract.md`. Gmail's trusted-key path still needs a real account.
+
+For an interactive visual preview, run `npm run dev` and open `http://127.0.0.1:4173/dev/preview.html`. Switch between the Gmail-style baseline and the actual Nowave skin, and inspect the inbox, reading pane, thread, compose, and command palette. The preview adds representative Gmail baseline styling and synthetic mail to the contract fixture; it is not an authenticated Gmail session. Actions that would change real mail show a demo notice instead.
 
 | File | Owns |
 | --- | --- |
