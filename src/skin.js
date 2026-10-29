@@ -145,7 +145,7 @@ ${S} tr.zA {
   background: transparent !important;
   box-shadow: none !important;
   font: 14px var(--nw-font);
-  transition: background-color 80ms var(--nw-ease), opacity ${LEAVE_MS}ms var(--nw-ease),
+  transition: opacity ${LEAVE_MS}ms var(--nw-ease),
     transform ${LEAVE_MS}ms var(--nw-ease);
 }
 ${S} tr.zA[${LEAVING_ATTR}] { opacity: 0; transform: translateX(12px); }
@@ -268,7 +268,6 @@ export const SPLIT_PILLS_CSS = `
   opacity: 1;
   color: var(--nw-secondary);
   line-height: 20px;
-  transition: color 80ms var(--nw-ease);
 }
 :host(.${SKIN_CLASS}) .tab:hover,
 :host(.${SKIN_CLASS}) .tab[aria-selected="true"] { color: var(--nw-text); }
@@ -321,21 +320,6 @@ export async function leaveRows(rows) {
       return stays;
     });
   }
-}
-
-// The conversation is everything around its subject up to Gmail's view, or up to the list beside a reading pane.
-export function shownConversation(list) {
-  const subject = [...document.querySelectorAll(SELECTORS.subject)].find((el) => el.getClientRects().length > 0);
-  let el = subject;
-  while (el?.parentElement && !el.matches(SELECTORS.view) && !(list && el.parentElement.contains(list))) {
-    el = el.parentElement;
-  }
-  return el ?? null;
-}
-
-export function enterConversation(el) {
-  const from = reducedMotion() ? { opacity: 0 } : { opacity: 0, transform: 'translateY(6px)' };
-  el.animate([from, { opacity: 1, transform: 'none' }], { duration: 160, easing: EASE });
 }
 
 // 'collapse' | 'expand' | null. nowave folds Gmail's nav into its icon rail once per page load, and unfolds

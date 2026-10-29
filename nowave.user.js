@@ -43,13 +43,11 @@ import {
   SKIN_CSS,
   clickMainMenu,
   createRailPin,
-  enterConversation,
   inboxUnread,
   isNavExpanded,
   leaveRows,
   mainMenu,
   navToggle,
-  shownConversation,
   splitBarAnchor,
 } from './src/skin.js';
 import { createActionQueue } from './src/queue.js';
@@ -183,20 +181,6 @@ function syncGmailKeys() {
 }
 
 let navClicked = false;
-let enteredThread = null;
-
-// Gmail may reuse its conversation view, so nowave animates each opened conversation once, by its URL.
-function syncConversation(view, list) {
-  if (view !== 'thread' || !settings.skin) {
-    enteredThread = null;
-    return;
-  }
-  if (enteredThread === location.hash) return;
-  const conversation = shownConversation(list);
-  if (!conversation) return;
-  enteredThread = location.hash;
-  enterConversation(conversation);
-}
 
 function syncNav() {
   const button = mainMenu();
@@ -230,7 +214,6 @@ function sync() {
   syncGmailKeys();
   const view = parseRoute(location.hash).view;
   const shownList = view === 'list' ? findThreadList() : null;
-  syncConversation(view, findThreadList());
   const list = settings.splits.length > 0 ? shownList : null;
   if (list) {
     const counts = settings.skin ? settings.splits.map((s) => (s.query === 'in:inbox' ? inboxUnread() : null)) : [];

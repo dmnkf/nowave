@@ -85,7 +85,6 @@ const CSS = `
   padding: 0 12px;
   border-radius: 8px;
   cursor: default;
-  transition: background-color 60ms ${EASE};
 }
 .row[aria-selected="true"] { background: var(--selected); }
 .title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
@@ -148,14 +147,14 @@ export function createPalette({ isMac, onRun, onOpenChange }) {
   }
 
   function animateIn() {
-    backdrop.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 120, easing: EASE });
-    card.animate(cardFrames(), { duration: 150, easing: EASE });
+    backdrop.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 60, easing: EASE });
+    card.animate(cardFrames(), { duration: 90, easing: EASE });
   }
 
   // The palette is closed (keys, focus, answers) as soon as close() runs; only the picture lingers for the fade.
   function animateOut() {
     backdrop.style.pointerEvents = 'none';
-    const reverse = { duration: 100, easing: EASE, direction: 'reverse', fill: 'forwards' };
+    const reverse = { duration: 60, easing: EASE, direction: 'reverse', fill: 'forwards' };
     backdrop.animate([{ opacity: 0 }, { opacity: 1 }], reverse);
     card.animate(cardFrames(), reverse).onfinish = () => {
       if (isOpen()) return;

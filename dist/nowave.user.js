@@ -850,7 +850,7 @@ ${S} tr.zA {
   background: transparent !important;
   box-shadow: none !important;
   font: 14px var(--nw-font);
-  transition: background-color 80ms var(--nw-ease), opacity ${LEAVE_MS}ms var(--nw-ease),
+  transition: opacity ${LEAVE_MS}ms var(--nw-ease),
     transform ${LEAVE_MS}ms var(--nw-ease);
 }
 ${S} tr.zA[${LEAVING_ATTR}] { opacity: 0; transform: translateX(12px); }
@@ -971,7 +971,6 @@ ${SPLIT} tr.zA > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: borde
   opacity: 1;
   color: var(--nw-secondary);
   line-height: 20px;
-  transition: color 80ms var(--nw-ease);
 }
 :host(.${SKIN_CLASS}) .tab:hover,
 :host(.${SKIN_CLASS}) .tab[aria-selected="true"] { color: var(--nw-text); }
@@ -1016,18 +1015,6 @@ ${SPLIT} tr.zA > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: borde
         return stays;
       });
     }
-  }
-  function shownConversation(list) {
-    const subject = [...document.querySelectorAll(SELECTORS2.subject)].find((el3) => el3.getClientRects().length > 0);
-    let el2 = subject;
-    while (el2?.parentElement && !el2.matches(SELECTORS2.view) && !(list && el2.parentElement.contains(list))) {
-      el2 = el2.parentElement;
-    }
-    return el2 ?? null;
-  }
-  function enterConversation(el2) {
-    const from = reducedMotion() ? { opacity: 0 } : { opacity: 0, transform: "translateY(6px)" };
-    el2.animate([from, { opacity: 1, transform: "none" }], { duration: 160, easing: EASE });
   }
   function navToggle({ skin, expanded, collapsedBySkin, clicked }) {
     if (clicked) return null;
@@ -1154,7 +1141,6 @@ ${SPLIT} tr.zA > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: borde
   padding: 0 12px;
   border-radius: 8px;
   cursor: default;
-  transition: background-color 60ms ${EASE};
 }
 .row[aria-selected="true"] { background: var(--selected); }
 .title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
@@ -1210,12 +1196,12 @@ kbd {
       return [from, { opacity: 1, transform: "none" }];
     }
     function animateIn() {
-      backdrop.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 120, easing: EASE });
-      card.animate(cardFrames(), { duration: 150, easing: EASE });
+      backdrop.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 60, easing: EASE });
+      card.animate(cardFrames(), { duration: 90, easing: EASE });
     }
     function animateOut() {
       backdrop.style.pointerEvents = "none";
-      const reverse = { duration: 100, easing: EASE, direction: "reverse", fill: "forwards" };
+      const reverse = { duration: 60, easing: EASE, direction: "reverse", fill: "forwards" };
       backdrop.animate([{ opacity: 0 }, { opacity: 1 }], reverse);
       card.animate(cardFrames(), reverse).onfinish = () => {
         if (isOpen()) return;
@@ -1529,7 +1515,7 @@ kbd {
       if (placed?.transform === next.transform && placed.width === next.width) return;
       Object.assign(pill.style, next, { height: `${tab.offsetHeight}px` });
       for (const animation of pill.getAnimations()) animation.cancel();
-      if (placed && !reducedMotion()) pill.animate([placed, next], { duration: 220, easing: EASE });
+      if (placed && !reducedMotion()) pill.animate([placed, next], { duration: 120, easing: EASE });
       placed = next;
     }
     return {
@@ -1699,18 +1685,6 @@ kbd {
     saveGmailKeys(found);
   }
   var navClicked = false;
-  var enteredThread = null;
-  function syncConversation(view, list) {
-    if (view !== "thread" || !settings.skin) {
-      enteredThread = null;
-      return;
-    }
-    if (enteredThread === location.hash) return;
-    const conversation = shownConversation(list);
-    if (!conversation) return;
-    enteredThread = location.hash;
-    enterConversation(conversation);
-  }
   function syncNav() {
     const button = mainMenu();
     if (!button) return;
@@ -1741,7 +1715,6 @@ kbd {
     syncGmailKeys();
     const view = parseRoute(location.hash).view;
     const shownList = view === "list" ? findThreadList() : null;
-    syncConversation(view, findThreadList());
     const list = settings.splits.length > 0 ? shownList : null;
     if (list) {
       const counts = settings.skin ? settings.splits.map((s) => s.query === "in:inbox" ? inboxUnread() : null) : [];

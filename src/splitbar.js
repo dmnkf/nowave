@@ -116,7 +116,7 @@ export function createSplitBar({ onSelect }) {
     if (placed?.transform === next.transform && placed.width === next.width) return;
     Object.assign(pill.style, next, { height: `${tab.offsetHeight}px` });
     for (const animation of pill.getAnimations()) animation.cancel();
-    if (placed && !reducedMotion()) pill.animate([placed, next], { duration: 220, easing: EASE });
+    if (placed && !reducedMotion()) pill.animate([placed, next], { duration: 120, easing: EASE });
     placed = next;
   }
 
