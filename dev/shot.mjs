@@ -1,6 +1,6 @@
 // Screenshots of a bundle on your own signed-in Gmail, for visual checks. Runs in its own minimised Ardia window
-// (Settings › Advanced › Command line must be on). The installed nowave would run alongside the injected one, so the
-// run uninstalls it and afterwards reinstalls the last commit from a clean checkout.
+// (Settings › Advanced › Command line must be on). The run uninstalls the installed nowave and afterwards installs the
+// last commit (dev/install.mjs).
 //   npm run build
 //   node dev/shot.mjs dist/nowave.user.js "$TMPDIR/shots" '[{"hash":"#inbox"},{"shot":"inbox"},{"key":"mod+k"},{"wait":300},{"shot":"palette"}]'
 // Steps:
@@ -18,31 +18,17 @@
 //   {"assert": "document.activeElement?.id === 'nowave-palette'"}
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { homedir, tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+import { reinstallHead, uninstallNowave } from './install.mjs';
 
 const [bundlePath, outDir, stepsJson = '[{"hash":"#inbox"},{"shot":"inbox"}]'] = process.argv.slice(2);
 const bundle = readFileSync(bundlePath, 'utf8');
 const steps = JSON.parse(stepsJson);
 mkdirSync(outDir, { recursive: true });
 
-const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const headCheckout = join(tmpdir(), 'nowave-head');
-
-function reinstallHead() {
-  const head = execFileSync('git', ['-C', repo, 'rev-parse', 'HEAD']).toString().trim();
-  try {
-    execFileSync('git', ['-C', headCheckout, 'checkout', '-q', '--detach', head], { stdio: 'ignore' });
-  } catch {
-    execFileSync('git', ['-C', repo, 'worktree', 'add', '-q', '--detach', headCheckout, head]);
-  }
-  execFileSync('ardia', ['scripts', 'install', join(headCheckout, 'nowave.user.js')], { stdio: 'ignore' });
-  console.log(`reinstalled nowave at ${head.slice(0, 7)}`);
-}
-
 const MARKER = 'about:blank#nowave-shot';
-execFileSync('ardia', ['scripts', 'uninstall', 'nowave'], { stdio: 'ignore' });
+uninstallNowave();
 const windowId = execFileSync('osascript', [
   '-e',
   `tell application "Ardia"
