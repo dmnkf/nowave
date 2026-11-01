@@ -159,7 +159,7 @@ For an interactive visual preview, run `npm run dev` and open `http://127.0.0.1:
 
 The scripts in `dev/` drive your own signed-in Gmail in its own Ardia window, through Ardia's command-line control. Turn on **Settings > Advanced > Command line** in Ardia first. They inject the bundle at document start and press only keys that leave mail unchanged.
 
-- `dev/live.mjs` runs a set of live checks: selecting and unselecting a row, opening and cancelling snooze, the palette, splits, and the go-to keys. Leave its window visible while it runs, because Gmail pauses rendering in hidden pages.
+- `dev/live.mjs` runs a set of live checks: selecting and unselecting a row, opening and cancelling snooze, the palette, splits, and the go-to keys. Leave its window visible while it runs, because Gmail pauses rendering in hidden pages. Like `dev/shot.mjs`, it uninstalls the installed nowave for the run and reinstalls the last commit afterwards.
 - `dev/shot.mjs` takes screenshots after a list of steps, such as keys, waits, and scripts to run in the page. It uninstalls the installed nowave for the run and reinstalls the last commit afterwards.
 - `dev/demo-inbox.js` replaces the mail on screen with demo content. Its header has the command that regenerates `docs/screenshot.png`.
 

@@ -318,11 +318,11 @@ export function createPalette({ isMac, onRun, onOpenChange }) {
     open({ commands, recent, placeholder = 'Type a command or search...', heading }) {
       show({ kind: 'commands', commands, recent }, placeholder, '', heading);
     },
-    prompt({ placeholder, value = '' }) {
-      return new Promise((resolve) => show({ kind: 'prompt', resolve }, placeholder, value));
+    prompt({ placeholder, value = '', heading }) {
+      return new Promise((resolve) => show({ kind: 'prompt', resolve }, placeholder, value, heading));
     },
     notice({ title, lines, through = false }) {
-      show({ kind: 'notice', title, lines, through }, '', '');
+      show({ kind: 'notice', title, lines, through }, '', '', 'nowave');
     },
   };
 }

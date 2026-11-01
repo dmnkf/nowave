@@ -26,6 +26,7 @@ const SELECTORS = {
   settings: 'header#gb .FI',
   card: '.bkK',
   sidePanelColumn: '.aqk > div:has(> .aUx)',
+  quickSettings: '.IU[role="menu"]',
 };
 
 // Shortwave's empty left gutter and its right icon column.
@@ -33,8 +34,8 @@ const HEADER_SIDE = 48;
 
 // The thread list while Gmail's vertical split pane is on: rows, a .Nt divider and the .Nu.S3 pane.
 const SPLIT = `${S} [gh="tl"].Nm`;
-// Two-line rows in the split view. A narrow list (.Zs) already has Gmail's own two-line rows.
-const SPLIT_ROW = `${SPLIT} tr.zA:not(.Zs tr)`;
+// Two-line rows: beside the split pane, and in a narrow list (.Zs), where Gmail's own two-line layout is replaced.
+const SPLIT_ROW = `${S} :is([gh="tl"].Nm, .Zs) tr.zA`;
 
 // An attribute, not a class: Gmail rewrites a row's className when its checked state changes.
 const LEAVING_ATTR = 'data-nowave-leaving';
@@ -159,9 +160,14 @@ ${S} ${SELECTORS.card} > .nH {
   background: var(--nw-card);
   box-shadow: none;
 }
-${S} ${SELECTORS.sidePanelColumn} { flex: none; width: ${HEADER_SIDE}px; min-width: 0; background: transparent; }
-${S} ${SELECTORS.sidePanelColumn} * { background-color: transparent; }
-${S} :is(.aUx, .aUx > *, [role="complementary"]) { width: ${HEADER_SIDE}px !important; min-width: 0 !important; }
+${S} ${SELECTORS.sidePanelColumn} { flex: none; min-width: 0; background: transparent; }
+${S} ${SELECTORS.sidePanelColumn}:not(:has(${SELECTORS.quickSettings})) { width: ${HEADER_SIDE}px; }
+${S} .aUx > .bAw * { background-color: transparent; }
+${S} :is(.aUx:not(:has(> ${SELECTORS.quickSettings})), .aUx > .bAw, [role="complementary"]) {
+  width: ${HEADER_SIDE}px !important;
+  min-width: 0 !important;
+}
+${S} .aUx > ${SELECTORS.quickSettings} { border-radius: 8px 0 0 0; background: var(--nw-surface); }
 ${S} [role="complementary"] [role="tablist"] { width: ${HEADER_SIDE}px; padding-top: 36px; }
 ${S} [role="complementary"] [role="tab"] { position: relative; margin: 0 10px 8px; }
 ${S} [role="complementary"] [role="tab"] > * {
@@ -260,6 +266,7 @@ ${S} tr.zA:is(:hover, :has(td.oZ-x3 [aria-checked="true"])) > td.yX .bA4 > span[
 ${S} tr.zA > td.yX { flex: 0 0 249px !important; width: 249px !important; margin: 0 4px 0 0 !important; }
 ${S} tr.zA > td.a4W { flex: 1 1 0 !important; min-width: 0; }
 ${S} tr.zA > td.yf { order: 1; width: auto !important; flex: none !important; margin-left: 8px; opacity: 0.55; }
+${S} tr.zA > td.yf .yE { display: block !important; }
 ${S} tr.zA > td.apU { order: 2; width: 20px !important; flex: none !important; margin-left: 8px; }
 ${S} tr.zA:not(:hover) > td.apU:has(.aXw) { display: none; }
 ${S} tr.zA > :is(td.byZ, td.xW, td.bq4) { order: 3; }
@@ -284,7 +291,7 @@ ${S} tr.zA :is(.xS, .xT) { height: 20px; line-height: 20px; }
 ${S} tr.zA .xT { align-items: baseline; }
 ${S} tr.zA .xT > * { line-height: 20px; }
 ${S} [gh="tl"] * { scrollbar-width: thin; scrollbar-color: var(--nw-border) transparent; }
-${S} tr.zA .y2 .Zt { font-size: 0; }
+${S} tr.zA .y2 .Zt { display: inline !important; font-size: 0; }
 ${S} tr.zA .y2 .Zt::before { content: "\\00a0\\2014\\00a0"; font-size: 14px; }
 ${S} tr.zA .brd { display: none; }
 ${S} tr.zA .at {
@@ -388,7 +395,17 @@ ${SPLIT_ROW} {
   row-gap: 2px;
 }
 ${SPLIT_ROW} > td.yX { flex: 0 1 auto !important; width: auto !important; min-width: 0; margin-right: auto !important; }
-${SPLIT_ROW} > td.a4W { order: 4; flex: 0 0 100% !important; box-sizing: border-box; }
+${SPLIT_ROW} > :is(td.apU, td.yf, td.xW) { height: 20px !important; align-items: center; }
+${SPLIT_ROW} .xT { flex-wrap: nowrap !important; }
+${SPLIT_ROW} .xT > .y6 { flex: 0 1 auto !important; width: auto !important; min-width: 0; }
+${SPLIT_ROW} .xT > .y2 { display: block; flex: 1 1 0 !important; width: auto !important; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+${SPLIT_ROW} > td.a4W {
+  order: 4;
+  flex: 0 0 100% !important;
+  box-sizing: border-box;
+  width: auto !important;
+  margin: 0 !important;
+}
 @media (max-width: 900px) {
   ${S} .bkK { margin-right: 4px; }
   ${S} #nowave-splits { padding-inline: 8px; }

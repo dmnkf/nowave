@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         nowave
 // @namespace    https://github.com/dmnkf/nowave
-// @version      1.0.8
+// @version      1.0.9
 // @description  Shortwave-style keys, a command palette and split inbox tabs for Gmail. No AI.
 // @author       Dominik Filliger
 // @license      MIT
@@ -97,9 +97,10 @@ const app = {
   },
   async saveSplit() {
     const current = parseRoute(location.hash).query;
-    const query = await palette.prompt({ placeholder: 'Search query for the split', value: current ?? '' });
+    const heading = 'Save search as split';
+    const query = await palette.prompt({ placeholder: 'Search query for the split', value: current ?? '', heading });
     if (!query) return;
-    const name = await palette.prompt({ placeholder: 'Name this split' });
+    const name = await palette.prompt({ placeholder: 'Name this split', heading });
     if (!name) return;
     update(addSplit(settings, { name, query }));
     app.goToSplit(settings.splits.length - 1);

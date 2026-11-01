@@ -231,7 +231,7 @@ test('keeps settings and user-authored signatures untouched', async ({ page }) =
   await expect(page.locator('#nowave-splits')).not.toBeAttached();
 });
 
-test('wraps rows only in a vertical reading pane and restores single-line rows afterwards', async ({ page }) => {
+test('wraps rows beside a vertical reading pane and in a narrow list, and restores single-line rows afterwards', async ({ page }) => {
   await open(page);
   expect(await style(page.locator('#unread-row'), 'flexWrap')).toBe('nowrap');
   await page.locator('[gh="tl"]').evaluate(el => el.classList.add('Nm'));
@@ -248,8 +248,10 @@ test('wraps rows only in a vertical reading pane and restores single-line rows a
     cp.before(narrow);
     narrow.append(cp);
   });
-  expect(await style(page.locator('#unread-row .a4W'), 'order')).toBe('0');
-  expect(await style(page.locator('#unread-row .a4W'), 'flexBasis')).not.toBe('100%');
+  const narrowSender = await page.locator('#unread-row .yX').boundingBox();
+  const narrowSubject = await page.locator('#unread-row .a4W').boundingBox();
+  expect(narrowSubject.y).toBeGreaterThan(narrowSender.y);
+  expect(narrowSubject.x).toBe(narrowSender.x);
   await page.locator('.Nu.tf > .Zs').evaluate((narrow) => narrow.replaceWith(...narrow.childNodes));
   await page.locator('[gh="tl"]').evaluate(el => el.classList.remove('Nm'));
   expect(await style(page.locator('#unread-row'), 'height')).toBe('40px');

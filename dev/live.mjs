@@ -1,11 +1,13 @@
 // Live check against your own signed-in Gmail in Ardia, through the DevTools port that
-// Settings › Advanced › Command line opens. Presses only keys that leave mail unchanged.
+// Settings › Advanced › Command line opens. Presses only keys that leave mail unchanged. The run uninstalls the
+// installed nowave and afterwards installs the last commit (dev/install.mjs).
 //   npm run build
 //   node dev/live.mjs dist/nowave.user.js
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { reinstallHead, uninstallNowave } from './install.mjs';
 
 const bundle = readFileSync(process.argv[2], 'utf8');
 const control = JSON.parse(
@@ -106,6 +108,8 @@ const go = async (h) => {
   await sleep(400);
 };
 
+uninstallNowave();
+
 // Ardia's DevTools policy can't place a target in a new window, but its AppleScript can.
 // The window has to stay unminimised: Gmail and nowave only render while the page is visible.
 const MARKER = 'about:blank#nowave-live';
@@ -123,6 +127,7 @@ const closeWindow = () => execFileSync('osascript', ['-e', `tell application "Ar
 const marked = (await send('Target.getTargets')).targetInfos.filter((t) => t.type === 'page' && t.url === MARKER);
 if (marked.length !== 1) {
   closeWindow();
+  reinstallHead();
   throw new Error(`expected one ${MARKER} tab, found ${marked.length}`);
 }
 const { targetId } = marked[0];
@@ -152,7 +157,11 @@ try {
       calmStyle: Boolean(document.getElementById('nowave-style')),
       calmClass: document.documentElement.classList.contains('nowave-calm'),
       barMounted: Boolean(bar?.isConnected),
-      barPlaced: bar?.nextElementSibling === list || bar?.nextElementSibling?.matches('[gh="mtb"]') === true,
+      barPlaced:
+        !bar?.closest('[gh="tl"]') &&
+        bar?.closest('[gh="tm"]')?.closest('[role="main"]') === list?.closest('[role="main"]') &&
+        bar?.nextElementSibling?.matches('[gh="mtb"]') === true,
+      topbar: Boolean(document.getElementById('nowave-topbar')?.isConnected),
       barHeight: bar ? Math.round(bar.getBoundingClientRect().height) : 0,
       categoryTabsShown: [...document.querySelectorAll('[role="main"] [role="tablist"]')].filter(shown).length,
       geminiShown: gemini.filter(shown).map((e) => e.getAttribute('aria-label') || e.getAttribute('data-tooltip')),
@@ -166,7 +175,8 @@ try {
   console.log('facts', JSON.stringify(facts));
   check('page is visible (rAF runs)', facts.visibility === 'visible', facts.visibility);
   check('calm stylesheet injected at document-start survives Gmail', facts.calmStyle && facts.calmClass);
-  check('split bar mounts above the thread list or in its toolbar', facts.barMounted && facts.barPlaced, facts.barHeight);
+  check("split bar mounts in the list's toolbar, before Gmail's actions", facts.barMounted && facts.barPlaced, facts.barHeight);
+  check('the Shortwave header controls are mounted', facts.topbar);
   check('Gmail category tabs hidden while splits show', facts.categoryTabsShown === 0, facts.categoryTabsShown);
   check('no Gemini control left visible', facts.geminiShown.length === 0, facts.geminiShown);
   check('unread rows carry tr.zE', facts.rows === 0 || facts.unreadRows >= 0, `${facts.unreadRows}/${facts.rows}`);
@@ -256,8 +266,11 @@ try {
   check('no uncaught nowave exceptions', exceptions.length === 0, exceptions.slice(0, 3));
   // Ardia windows share their space's tabs, so closing the window alone would leave the tab behind.
   await send('Target.closeTarget', { targetId }).catch(() => {});
-  closeWindow();
+  try {
+    closeWindow();
+  } catch {}
   ws.close();
+  reinstallHead();
 }
 
 const failed = results.filter((r) => !r.ok).length;
