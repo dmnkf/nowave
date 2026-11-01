@@ -13,6 +13,7 @@
     button, [role="button"], [role="checkbox"] { cursor: pointer; }
     button, [role="button"] { border: 0; border-radius: 6px; padding: 8px; background: transparent; }
     :focus-visible { outline: 2px solid #0b57d0; }
+    header { position: relative; z-index: 986; }
     header > div { display: flex; align-items: center; gap: 12px; padding: 8px 16px; height: 64px; }
     header form { position: relative; display: flex; flex: 1; min-height: 48px; max-width: 680px; background: #dce6f5; }
     header input { width: 100%; border: 0; padding: 8px 12px; background: transparent; outline: 0; }
@@ -83,7 +84,7 @@
     <form role="search"><input aria-label="Search mail" placeholder="Search mail"><div id="suggestions" class="J-M" role="listbox" hidden>Search suggestions</div></form>
     <div class="zo"><a role="button" tabindex="0" aria-label="Help">?</a></div>
     <div class="FI"><a role="button" tabindex="0" aria-label="Settings">⚙</a></div>
-    <div><div><a role="button" href="https://www.google.com/intl/en/about/products" aria-label="Google apps">Apps</a></div></div>
+    <div><div><a id="gbwa" role="button" href="https://www.google.com/intl/en/about/products" aria-label="Google apps">Apps</a></div></div>
     <a href="https://accounts.google.com/SignOutOptions" aria-label="Google Account"><span><img class="gbii" alt="" width="26" height="26" src="data:image/gif;base64,R0lGODlhAQABAAAAACw="></span></a>
   </div></header>
   <div class="aqk">

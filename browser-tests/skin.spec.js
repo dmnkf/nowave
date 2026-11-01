@@ -126,7 +126,7 @@ test('styles compose chrome but leaves draft content and native actions intact',
   await page.evaluate(() => window.fixtureRoots.get('nowave-topbar').querySelector('.compose').click());
   await expect(page.getByRole('textbox', { name: 'Recipients', exact: true })).toBeVisible();
   expect(await style(page.locator('#compose .M9'), 'borderTopLeftRadius')).toBe('12px');
-  expect(await style(page.locator('#compose .aYF'), 'backgroundColor')).toBe('rgb(247, 247, 248)');
+  expect(await style(page.locator('#compose .aYF'), 'backgroundColor')).toBe('rgb(242, 244, 247)');
   expect(await style(page.getByRole('textbox', { name: 'Message body' }), 'fontFamily')).toContain('Georgia');
   expect(await style(page.getByRole('textbox', { name: 'Message body' }), 'color')).toBe('rgb(123, 31, 162)');
   await expect(page.getByRole('button', { name: 'Attach files', exact: true })).toBeVisible();
