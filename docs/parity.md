@@ -81,9 +81,38 @@ Each journey lists what Shortwave does (measured live in Shortwave's Sent view a
 
 - Hide Gmail's footer (Terms, Privacy, account activity) and the stray horizontal scrollbar stub under the list.
 
+## Keys and commands
+
+Compared on 2026-11-01: Shortwave's Settings > Keyboard shortcuts page and its `⌘K` palette in Sent, against nowave's command registry and key resolver. Gmail's own behaviour in this section comes from Gmail's published shortcuts and is not checked live.
+
+### Clashes to fix first
+
+| Key | What happens | Why |
+| --- | --- | --- |
+| `g` then `l` | In the list, opens the cursor conversation. In a thread, does nothing. Gmail and Shortwave go to a label. | nowave lets `g` through to Gmail, finds no `g l` binding, and resolves `l` on its own as Open conversation. |
+| `⌘K` while typing | Opens the palette. Gmail and Shortwave insert a link in compose. | The palette command is live in the typing context. |
+
+### Missing
+
+| Area | Shortwave | nowave today |
+| --- | --- | --- |
+| List | `↓` / `↑` next and previous, `→` open in the side panel, `←` close, `⌘⇧→` open full screen | `j` / `k`, `Enter` / `o` / `l`, `h` / `Esc` only (journeys 3 and 5) |
+| Triage | `[` done and next, `]` done and previous | Unbound, so they reach Gmail, whose `[` and `]` archive and move the other way round (journey 6) |
+| Triage | `t` add to todo | Missing. Gmail has no todos; the nearest is Add to Tasks (`⇧T`) |
+| Triage | `l` label, `h` snooze | nowave keeps `h` and `l` for back and open, so Label… has no key |
+| Triage | `+` or `=` mark important, `-` mark not important | The keys reach Gmail, but the palette has no commands for them |
+| Triage | `⌘U` unsubscribe, `⌘B` block spam, `⌘C` copy thread link, `⌘P` print, `⌘Z` undo | Missing |
+| Go to | `g o` todos, `g b` snoozed, `g +` important, `g l` labels | `g h` for Snoozed only; `g l` clashes (see above) |
+| Global | `⌘⇧K` and `⌘⇧P` palette, `` ` `` and `~` next and previous split, `Ctrl+1` to `9` switch account | Missing. Accounts 0 to 3 switch from the palette only |
+| Global | `⌘,` settings, `⌘⇧L` toggle theme, `⌘/` left sidebar, `⌘\` right sidebar | Missing; no dark theme yet (journey 11) |
+| Compose | `⌘⇧L` scheduled send, `⌘⇧⏎` send and done, `⌘⇧M` send and remind, `⌘⇧D` discard draft, `⌘⇧A` attach, `⌘⇧V` view sent message | Missing. Gmail's own `⌘⏎` send and `⌘⇧C` / `⌘⇧B` Cc and Bcc pass through (journey 10) |
+| Palette | Go to Important, Go to each Settings page, Reapply filters | Missing |
+
+nowave's own additions stay: `⇧D` select everything, saving and removing splits, calm mode, and detecting Gmail's custom keys.
+
 ## Out of scope
 
-AI summaries, AI replies and Gmail's own AI Overview, Slack and CRM integrations, Shortwave's bundles (grouped rows; Gmail owns the list rows), and sender logos and photos (Gmail's list has none, so nowave draws letter avatars).
+AI summaries, AI replies, the AI Assistant (`y`, `⌘J`, `⌘⇧J`, `⌘;`, `Tab` autocomplete) and Gmail's own AI Overview, Slack and CRM integrations, team sharing and assigning (`⌘⇧S`, `⌘⇧Z`, public links), Shortwave's bundles (grouped rows; Gmail owns the list rows), and sender logos and photos (Gmail's list has none, so nowave draws letter avatars).
 
 ## How every step is verified
 
