@@ -225,7 +225,7 @@ ${S} tr.zA > td:not(.bq4) * { font-family: var(--nw-font) !important; }
 ${S} tr.zA > :is(td.PF, td.WA) { display: none !important; }
 ${S} tr.zA > td { padding: 0 !important; }
 ${S} tr.zA > td.yX::before,
-${S} tr.zA > td.yX .bA4 > span[name]:first-child::before {
+${S} tr.zA > td.yX .yW span[name]:not(span[name] ~ *)::before {
   content: "";
   position: absolute;
   top: 8px;
@@ -244,7 +244,7 @@ ${S} tr.zA > td.yX .bA4 > span[name]:first-child::before {
   text-transform: uppercase;
   white-space: nowrap;
 }
-${S} tr.zA > td.yX .bA4 > span[name]:first-child::before { content: attr(name); }
+${S} tr.zA > td.yX .yW span[name]:not(span[name] ~ *)::before { content: attr(name); }
 ${S} tr.zA > td.oZ-x3 > :not([role="checkbox"]) { display: none; }
 ${S} tr.zA > td.oZ-x3 {
   position: absolute !important;
@@ -260,7 +260,7 @@ ${S} tr.zA > td.oZ-x3 {
 }
 ${S} tr.zA:is(:hover, :has(td.oZ-x3 [aria-checked="true"])) > td.oZ-x3 { visibility: visible; }
 ${S} tr.zA:is(:hover, :has(td.oZ-x3 [aria-checked="true"])) > td.yX::before,
-${S} tr.zA:is(:hover, :has(td.oZ-x3 [aria-checked="true"])) > td.yX .bA4 > span[name]:first-child::before {
+${S} tr.zA:is(:hover, :has(td.oZ-x3 [aria-checked="true"])) > td.yX .yW span[name]:not(span[name] ~ *)::before {
   visibility: hidden;
 }
 ${S} tr.zA > td.yX { flex: 0 0 249px !important; width: 249px !important; margin: 0 4px 0 0 !important; }

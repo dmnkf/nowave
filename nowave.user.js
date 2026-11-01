@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         nowave
 // @namespace    https://github.com/dmnkf/nowave
-// @version      1.0.9
+// @version      1.0.10
 // @description  Shortwave-style keys, a command palette and split inbox tabs for Gmail. No AI.
 // @author       Dominik Filliger
 // @license      MIT
