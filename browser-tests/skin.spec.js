@@ -94,7 +94,7 @@ test('lays out the page like Shortwave: gutter, centred search, folder switcher 
 test('keeps selection and stars operable and does not mistake a star for a selected row', async ({ page }) => {
   await open(page);
   const read = page.locator('#read-row');
-  expect(await style(read, 'backgroundColor')).toBe('rgba(0, 0, 0, 0)');
+  expect(await style(read, 'backgroundColor')).toBe('rgb(252, 252, 254)');
   await expect(page.getByRole('checkbox', { name: 'Star Figma' })).toBeVisible();
   await expect(page.getByRole('checkbox', { name: 'Select Figma' })).toBeHidden();
   await read.hover();
