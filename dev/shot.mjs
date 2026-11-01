@@ -7,9 +7,11 @@
 //   {hash}: goes to that Gmail view and waits for the list.
 //   {key: "j" | "shift+tab" | "mod+k" | "escape" | "enter" | ...}: presses a real key.
 //   {mouse: [x, y]}: moves the pointer.
-//   {click: "selector"}: a real click in the middle of the first shown match. Only for controls that open a menu or
-//   panel and change nothing.
+//   {click: "selector" | [x, y]}: a real click in the middle of the first shown match, or at a point (for controls in a
+//   closed shadow root). Only for controls that open a menu or panel and change nothing.
 //   {wait: ms}, {shot: name}, {eval: "js"}, {evalFile: "path"}.
+//   {init: "js"}: runs in every page before the bundle, wherever it is in the list. Put window.nowaveShadow = true in
+//   one to keep nowave's closed shadow roots in window.nowaveRoots, by host id, for measuring.
 //   {assert: "js"}: stops the run unless it is true.
 //   {shadowText: [host, selector], expect?: text}: prints the text of selector inside host's shadow root, also a
 //   closed one, and stops the run unless it contains expect.
@@ -33,6 +35,7 @@ const windowId = execFileSync('osascript', [
   '-e',
   `tell application "Ardia"
 set w to make new window
+set zoomed of w to true
 set minimized of w to true
 make new tab at end of tabs of w with properties {URL:"${MARKER}"}
 return id of w
@@ -91,7 +94,7 @@ async function shadowText(host, selector) {
   return found.result.value;
 }
 async function click(selector) {
-  const at = await evaluate(`(() => {
+  const at = Array.isArray(selector) ? selector : await evaluate(`(() => {
     const el = [...document.querySelectorAll(${JSON.stringify(selector)})].find((e) => e.getClientRects().length > 0);
     const r = el?.getBoundingClientRect();
     return r ? [r.left + r.width / 2, r.top + r.height / 2] : null;
@@ -134,10 +137,23 @@ try {
   await send('Runtime.enable');
   await send('Page.enable');
   await send('Emulation.setFocusEmulationEnabled', { enabled: true }).catch(() => {});
+  const OPEN_ROOTS = `if (window.nowaveShadow) {
+  window.nowaveRoots = new Map();
+  const attach = Element.prototype.attachShadow;
+  Element.prototype.attachShadow = function (options) {
+    const root = attach.call(this, options);
+    window.nowaveRoots.set(this.id, root);
+    return root;
+  };
+}`;
+  for (const step of steps.filter((s) => s.init !== undefined)) {
+    await send('Page.addScriptToEvaluateOnNewDocument', { source: `${step.init}\n${OPEN_ROOTS}` });
+  }
   await send('Page.addScriptToEvaluateOnNewDocument', {
     source: `if (window.top === window && location.host === 'mail.google.com') {\n${bundle}\n}\n//# sourceURL=nowave.js`,
   });
   for (const step of steps) {
+    if (step.init !== undefined) continue;
     if (step.hash !== undefined) {
       const loaded = await evaluate(`location.host === 'mail.google.com'`);
       if (loaded === true) await evaluate(`location.hash = ${JSON.stringify(step.hash)}`);

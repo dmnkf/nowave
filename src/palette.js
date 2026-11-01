@@ -309,8 +309,8 @@ export function createPalette({ isMac, onRun, onOpenChange }) {
     close,
     handleKey,
     letsThrough,
-    open({ commands, recent }) {
-      show({ kind: 'commands', commands, recent }, 'Type a command', '');
+    open({ commands, recent, placeholder = 'Type a command or search...' }) {
+      show({ kind: 'commands', commands, recent }, placeholder, '');
     },
     prompt({ placeholder, value = '' }) {
       return new Promise((resolve) => show({ kind: 'prompt', resolve }, placeholder, value));

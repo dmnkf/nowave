@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         nowave
 // @namespace    https://github.com/dmnkf/nowave
-// @version      1.0.4
+// @version      1.0.5
 // @description  Shortwave-style keys, a command palette and split inbox tabs for Gmail. No AI.
 // @author       Dominik Filliger
 // @license      MIT
@@ -15,7 +15,7 @@
 // @grant        none
 // ==/UserScript==
 
-import { bindingsFor, buildCommands } from './src/commands.js';
+import { bindingsFor, buildCommands, isNavigation } from './src/commands.js';
 import {
   CALM_CLASS,
   CALM_CSS,
@@ -34,6 +34,7 @@ import {
   overlayOpen,
   paneOpen,
   readShortcutTable,
+  sendSequence,
   shortcutNotice,
 } from './src/gmail.js';
 import { createKeySequence } from './src/keys.js';
@@ -42,7 +43,6 @@ import {
   SKIN_CLASS,
   SKIN_CSS,
   clickMainMenu,
-  createRailPin,
   inboxUnread,
   isNavExpanded,
   leaveRows,
@@ -51,9 +51,10 @@ import {
   splitBarAnchor,
 } from './src/skin.js';
 import { createActionQueue } from './src/queue.js';
-import { activeSplitIndex, cycleSplitIndex, parseRoute, splitHash } from './src/route.js';
+import { activeSplitIndex, cycleSplitIndex, parseRoute, splitHash, viewOf } from './src/route.js';
 import { STORAGE_KEY, addSplit, parseSettings, recordRecent, removeSplit } from './src/settings.js';
 import { createSplitBar } from './src/splitbar.js';
+import { createTopbar } from './src/topbar.js';
 
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
 const keySequence = createKeySequence(isMac);
@@ -134,6 +135,12 @@ const app = {
     if (loading()) return;
     palette.open({ commands: commands(labels()), recent: cheatSheet ? [] : settings.recent });
   },
+  openSwitcher() {
+    palette.open({ commands: commands(labels()).filter(isNavigation), recent: [], placeholder: 'Go to...' });
+  },
+  compose() {
+    sendSequence(['c']);
+  },
   enqueue: createActionQueue(() => (palette.isOpen() ? null : location.hash)),
   leaveRows: (rows) => (settings.skin ? leaveRows(rows) : undefined),
   notice: (notice) => palette.notice(notice),
@@ -154,7 +161,7 @@ const palette = createPalette({
 });
 
 const splitBar = createSplitBar({ onSelect: app.goToSplit });
-const railPin = createRailPin();
+const topbar = createTopbar({ onSwitch: app.openSwitcher, onCompose: app.compose });
 
 const style = document.createElement('style');
 style.id = 'nowave-style';
@@ -210,7 +217,8 @@ function sync() {
   }
   syncNav();
   palette.setSkin(settings.skin);
-  railPin.sync(settings.skin);
+  if (settings.skin) topbar.render(viewOf(location.hash, settings.splits));
+  else topbar.unmount();
   syncGmailKeys();
   const view = parseRoute(location.hash).view;
   const shownList = view === 'list' ? findThreadList() : null;

@@ -67,6 +67,37 @@ export function cycleSplitIndex(count, active, delta) {
   return (active + delta + count) % count;
 }
 
+const VIEWS = {
+  inbox: { name: 'Inbox', icon: 'inbox' },
+  starred: { name: 'Starred', icon: 'star' },
+  snoozed: { name: 'Snoozed', icon: 'clock' },
+  sent: { name: 'Sent', icon: 'send' },
+  drafts: { name: 'Drafts', icon: 'draft' },
+  all: { name: 'Done', icon: 'done' },
+  spam: { name: 'Spam', icon: 'spam' },
+  trash: { name: 'Trash', icon: 'trash' },
+  imp: { name: 'Important', icon: 'inbox' },
+  scheduled: { name: 'Scheduled', icon: 'clock' },
+  search: { name: 'Search', icon: 'search' },
+  'advanced-search': { name: 'Search', icon: 'search' },
+  settings: { name: 'Settings', icon: 'settings' },
+};
+
+// The name and icon of the folder switcher: { name, icon }. A search that is a split shows the split's name.
+export function viewOf(hash, splits) {
+  const root = hash.replace(/^#/, '').split(/[/?]/)[0] || 'inbox';
+  if (root === 'search') {
+    const split = splits[activeSplitIndex(splits, hash)];
+    if (split) return { name: split.name, icon: 'inbox' };
+  }
+  if (root === 'label') return { name: labelName(hash) ?? 'Label', icon: 'label' };
+  if (root === 'category') {
+    const category = decodeQuery(hash.split(/[/?]/)[1] ?? '');
+    return { name: category.charAt(0).toUpperCase() + category.slice(1), icon: 'inbox' };
+  }
+  return VIEWS[root] ?? VIEWS.inbox;
+}
+
 // Gmail empties its reading pane when the hash changes to page 1 of the list, then rewrites the hash to the list's
 // own. It ignores a hash it has already routed in this page load, so each close needs a new nonce. Past page 1, or
 // with a ?compose in the hash, there is no plain list hash to go back to.

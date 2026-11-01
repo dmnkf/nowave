@@ -94,7 +94,7 @@ To add a split, search for something and run "Save search as split…" from the 
 
 ## The Shortwave look
 
-nowave restyles Gmail's light theme to look like Shortwave: a compact header, the navigation folded into an icon rail, quiet rows without dividers, and a soft highlight on the cursor row. Checkboxes, stars, importance markers, native toolbar actions, search filters, and the Google side panel stay available. Your label colors are preserved.
+nowave restyles Gmail's light theme to look like Shortwave. Gmail's navigation is hidden and the mail sits on one rounded card between an empty left gutter and a narrow icon column. The header has a folder switcher on the left that names the current view and opens the palette's go-to commands, a centred search field, and a Compose button beside your account. Gmail's settings gear and the Google side panel's apps form the icon column. Rows are quiet, without dividers, and the cursor row has a blue highlight. Your label colors are preserved.
 
 The look also covers conversation headings and metadata, compose chrome, and Gmail's native menus and dialogs. It does not restyle email bodies, signatures, or the text you are composing. Split tabs sit above the native list toolbar, scroll when space is tight, and support arrow keys, Home, and End when focused. The palette follows the light skin rather than your OS color scheme while the look is enabled.
 
@@ -150,6 +150,7 @@ For an interactive visual preview, run `npm run dev` and open `http://127.0.0.1:
 | `src/settings.js` | Stored settings and the default splits |
 | `src/palette.js` | Command palette UI |
 | `src/splitbar.js` | Split tabs UI |
+| `src/topbar.js` | The folder switcher and Compose button of the Shortwave look |
 | `src/rank.js` | Fuzzy matching and palette groups |
 | `src/queue.js` | The serial queue that triage actions run through |
 

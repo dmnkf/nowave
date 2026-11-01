@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseRoute, labelName, splitHash, activeSplitIndex, cycleSplitIndex, closePaneHash } from '../src/route.js';
+import { parseRoute, labelName, splitHash, activeSplitIndex, cycleSplitIndex, closePaneHash, viewOf } from '../src/route.js';
 import { DEFAULT_SPLITS } from '../src/settings.js';
 
 const THREAD = 'ThreadIdForTests0000000000000002';
@@ -78,4 +78,16 @@ test('closePaneHash has nothing to close past page 1, in a thread, on other page
   assert.equal(closePaneHash(`#inbox/${THREAD}`, 1), null);
   assert.equal(closePaneHash('#settings/general', 1), null);
   assert.equal(closePaneHash('#inbox?compose=new', 1), null);
+});
+
+test('viewOf names the folder switcher after the view, a split or a label', () => {
+  assert.deepEqual(viewOf('#inbox', DEFAULT_SPLITS), { name: 'Inbox', icon: 'inbox' });
+  assert.deepEqual(viewOf('', DEFAULT_SPLITS), { name: 'Inbox', icon: 'inbox' });
+  assert.deepEqual(viewOf(`#sent/${THREAD}`, DEFAULT_SPLITS), { name: 'Sent', icon: 'send' });
+  assert.deepEqual(viewOf('#all/p2', DEFAULT_SPLITS), { name: 'Done', icon: 'done' });
+  assert.deepEqual(viewOf('#search/in%3Ainbox+category%3Aupdates', DEFAULT_SPLITS), { name: 'Updates', icon: 'inbox' });
+  assert.deepEqual(viewOf('#search/from%3Aamy', DEFAULT_SPLITS), { name: 'Search', icon: 'search' });
+  assert.deepEqual(viewOf('#label/Receipts%2F2026', DEFAULT_SPLITS), { name: 'Receipts/2026', icon: 'label' });
+  assert.deepEqual(viewOf('#category/social', DEFAULT_SPLITS), { name: 'Social', icon: 'inbox' });
+  assert.deepEqual(viewOf('#settings/general', DEFAULT_SPLITS), { name: 'Settings', icon: 'settings' });
 });

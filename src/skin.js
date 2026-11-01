@@ -17,13 +17,19 @@ const SELECTORS = {
   subject: 'h2.hP',
   view: '[role="main"]',
   nav: '[role="navigation"].aeN',
+  mainMenuBox: 'header#gb div:has(> div[role="button"][aria-expanded])',
+  logo: 'header#gb a[href$="#inbox"]',
+  support: 'header#gb .zo',
+  apps: 'header#gb div:has(> div > a[href*="/about/products"])',
+  searchOptions: '[gh="sda"]',
+  account: 'header#gb a[href*="accounts.google.com/SignOutOptions"]',
+  settings: 'header#gb .FI',
+  card: '.bkK',
+  sidePanelColumn: '.aqk > div:has(> .aUx)',
 };
 
-// Gmail's nav while folded into the icon rail.
-const RAIL_CLASS = 'bhZ';
-// The pointer resting on the rail makes Gmail expand the nav over the list: bym while open, aaj while opening, bjB
-// while closing. Every rail style of Gmail's hangs on .bhZ:not(.bym).
-const HOVER_EXPAND_CLASSES = ['bym', 'aaj', 'bjB'];
+// Shortwave's empty left gutter and its right icon column.
+const HEADER_SIDE = 48;
 
 // The thread list while Gmail's vertical split pane is on: rows, a .Nt divider and the .Nu.S3 pane.
 const SPLIT = `${S} [gh="tl"].Nm`;
@@ -40,99 +46,132 @@ export const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)'
 
 export const SKIN_CSS = `
 ${S} {
-  --nw-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, "Segoe UI", Roboto, sans-serif;
-  --nw-text: #1c1d1f;
+  --nw-font: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --nw-page: rgb(229, 233, 243);
+  --nw-card: rgb(252, 252, 254);
   --nw-surface: #ffffff;
-  --nw-secondary: #5f636b;
-  --nw-tertiary: #6b7280;
-  --nw-hairline: rgba(0, 0, 0, 0.06);
-  --nw-chrome: #f7f7f8;
-  --nw-accent: #3d63f2;
-  --nw-wash: #eef2fe;
-  --nw-hover: #f5f6f8;
-  --nw-selected: #e2e8fd;
+  --nw-text: rgba(5, 3, 17, 0.87);
+  --nw-secondary: rgba(5, 3, 17, 0.54);
+  --nw-tertiary: rgba(5, 3, 17, 0.45);
+  --nw-subject: rgba(5, 0, 26, 0.75);
+  --nw-snippet: rgba(5, 0, 26, 0.45);
+  --nw-strong: rgba(5, 0, 26, 0.87);
+  --nw-border: rgba(5, 3, 17, 0.2);
+  --nw-rule: rgb(225, 224, 227);
+  --nw-fill: rgba(5, 3, 17, 0.08);
+  --nw-hairline: rgba(5, 3, 17, 0.08);
+  --nw-chrome: rgb(242, 244, 247);
+  --nw-accent: rgb(53, 106, 255);
+  --nw-accent-text: rgb(39, 91, 255);
+  --nw-accent-fill: rgba(53, 106, 255, 0.08);
+  --nw-wash: rgba(53, 106, 255, 0.16);
+  --nw-hover: rgb(235, 234, 236);
+  --nw-selected: rgb(204, 216, 254);
   --nw-ease: ${EASE};
   color-scheme: light;
 }
 ${S} body,
-${S} .wl { background: var(--nw-chrome) !important; }
-${S} .bkK { margin-right: 8px; }
-${S} .bkK > .nH {
-  border-radius: 12px;
-  background: var(--nw-surface);
-  box-shadow: 0 0 0 1px var(--nw-hairline);
-}
+${S} .wl { background: var(--nw-page) !important; }
 
-${S} header#gb { min-height: 52px; height: auto; }
-${S} header#gb > div:has([role="search"]) { height: 52px; padding-block: 0; align-items: center; }
-${S} header#gb div:has(> div[role="button"][aria-expanded]) { flex: none !important; min-width: 0 !important; }
-${S} header#gb a[href$="#inbox"] {
-  display: none !important;
-}
+${S} header#gb { height: 48px; min-height: 48px; background: transparent; }
+${S} header#gb > div:has(form[role="search"]) { height: 48px; padding-block: 0; }
+${S} :is(${SELECTORS.mainMenuBox}, ${SELECTORS.logo}, ${SELECTORS.support}, ${SELECTORS.apps}),
+${S} ${SELECTORS.nav} { display: none !important; }
 ${S} header#gb form[role="search"] {
   anchor-name: --nw-search;
-  max-width: 560px;
-  height: auto;
-  min-height: 36px;
-  margin: 6px 0 6px -19px;
-  border: 0;
-  border-radius: 10px;
-  background: #eceef1;
+  position: fixed;
+  top: 5px;
+  left: calc(50% - 200px);
+  box-sizing: border-box;
+  width: 400px;
+  max-width: calc(100vw - 2 * ${HEADER_SIDE}px);
+  height: 38px;
+  min-height: 38px;
+  margin: 0;
+  border: 1px solid var(--nw-border);
+  border-radius: 8px;
+  background: var(--nw-surface);
   box-shadow: none;
 }
 ${S} header#gb form[role="search"] > :is(div, button) { height: 36px; }
-${S} header#gb form[role="search"] input { font: 14px var(--nw-font); color: var(--nw-text); }
-${S} header#gb form[role="search"]:focus-within {
-  background: var(--nw-surface);
-  box-shadow: 0 0 0 2px var(--nw-accent);
+${S} header#gb form[role="search"] > button:last-of-type { display: grid; place-items: center; width: 36px; padding: 0 0 0 4px; }
+${S} header#gb form[role="search"] > button:last-of-type svg { width: 20px; height: 20px; margin: 0; color: var(--nw-secondary); fill: currentColor; }
+${S} header#gb form[role="search"] > [gh="sb"] { margin: 0 40px 0 37px; }
+${S} header#gb form[role="search"] input { font: 14px/20px var(--nw-font); color: var(--nw-text); }
+${S} header#gb form[role="search"] input::placeholder { color: transparent; }
+${S} header#gb form[role="search"]:has(input:placeholder-shown)::after {
+  content: "Search emails, contacts, labels...";
+  position: absolute;
+  top: 8px;
+  left: 37px;
+  font: 14px/20px var(--nw-font);
+  color: var(--nw-tertiary);
+  pointer-events: none;
 }
-${S} header#gb a[href*="accounts.google.com/SignOutOptions"] { transform: scale(0.8); }
+${S} header#gb form[role="search"] ${SELECTORS.searchOptions} { opacity: 0; }
+${S} header#gb form[role="search"]:is(:hover, :focus-within) ${SELECTORS.searchOptions} { opacity: 1; }
+${S} header#gb form[role="search"]:focus-within { border-color: var(--nw-accent); }
 ${S} .ZF-Av {
   right: auto;
-  left: 80px;
+  left: calc(50% - 200px);
   left: anchor(--nw-search left);
-  width: 560px;
+  width: 400px;
   width: anchor-size(--nw-search width);
 }
-
-${S} [role="navigation"].aeN {
-  background: var(--nw-chrome);
-  box-shadow: inset -1px 0 var(--nw-hairline);
+${S} ${SELECTORS.account} {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
 }
-${S} [role="navigation"] .TO { border-radius: 8px; }
-${S} [role="navigation"] .TO a { font-family: var(--nw-font); }
-${S} [role="navigation"] .TO:hover { background: var(--nw-hover); }
-${S} [role="navigation"] .TO:has(a[aria-current="page"]) { background: var(--nw-wash); }
-${S} [role="navigation"] .bsU { font: 500 11px var(--nw-font); color: var(--nw-secondary); }
-${S} [gh="cm"] {
-  interpolate-size: allow-keywords;
+${S} ${SELECTORS.account} img { width: 32px !important; height: 32px !important; border-radius: 8px; }
+${S} ${SELECTORS.account} > :not(span),
+${S} ${SELECTORS.account}::before,
+${S} ${SELECTORS.account} > span::after { display: none; }
+${S} ${SELECTORS.account} > span { position: absolute; inset: 0; width: 32px; height: 32px; margin: 0; }
+${S} ${SELECTORS.settings} {
+  position: fixed;
+  top: 48px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+}
+${S} ${SELECTORS.settings} > a,
+${S} [role="complementary"] [role="tab"] {
   box-sizing: border-box;
-  width: fit-content !important;
-  min-width: 0 !important;
-  height: 40px !important;
-  margin: 4px 0 12px 12px !important;
-  padding: 0 16px 0 14px !important;
-  justify-content: flex-start;
-  overflow: hidden;
-  white-space: nowrap;
-  border-radius: 10px !important;
-  background: var(--nw-surface);
-  color: var(--nw-text);
-  font: 500 14px/20px var(--nw-font) !important;
-  box-shadow: 0 0 0 1px var(--nw-hairline), 0 1px 2px rgba(0, 0, 0, 0.06);
-  transition: width 160ms var(--nw-ease), padding 160ms var(--nw-ease), background-color 80ms var(--nw-ease);
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 8px;
+  color: var(--nw-secondary);
 }
-${S} [gh="cm"]::before {
-  flex: none;
-  width: 20px !important;
-  min-width: 0 !important;
-  height: 20px !important;
-  margin: 0 10px 0 0 !important;
-  background-size: 20px auto !important;
-  background-position: center !important;
+${S} ${SELECTORS.settings} > a { display: grid; place-items: center; padding: 0; }
+${S} ${SELECTORS.settings} > a:hover,
+${S} [role="complementary"] [role="tab"]:hover { background: var(--nw-fill); }
+${S} ${SELECTORS.settings} svg { width: 20px; height: 20px; fill: currentColor; }
+
+${S} ${SELECTORS.card} { margin: 0 0 0 ${HEADER_SIDE}px !important; }
+${S} ${SELECTORS.card} > .nH {
+  min-height: calc(100vh - 48px);
+  margin-bottom: 0 !important;
+  border-radius: 8px 8px 0 0;
+  background: var(--nw-card);
+  box-shadow: none;
 }
-${S} ${SELECTORS.nav}.${RAIL_CLASS} [gh="cm"] { width: 40px !important; padding: 0 10px !important; }
-${S} [gh="cm"]:hover { background: var(--nw-hover); }
+${S} ${SELECTORS.sidePanelColumn} { flex: none; width: ${HEADER_SIDE}px; min-width: 0; background: transparent; }
+${S} ${SELECTORS.sidePanelColumn} * { background-color: transparent; }
+${S} :is(.aUx, .aUx > *, [role="complementary"]) { width: ${HEADER_SIDE}px !important; min-width: 0 !important; }
+${S} [role="complementary"] [role="tablist"] { width: ${HEADER_SIDE}px; padding-top: 36px; }
+${S} [role="complementary"] [role="tab"] { position: relative; margin: 0 10px 8px; }
+${S} [role="complementary"] [role="tab"] > * {
+  inset: 0 !important;
+  width: 28px !important;
+  height: 28px !important;
+  background-size: 20px 20px !important;
+  filter: grayscale(1) contrast(1.2) opacity(0.62);
+}
+${S} [role="complementary"] [role="separator"] { width: 28px; margin: 0 10px 8px; }
 
 ${S} ${SELECTORS.toolbar} { min-height: 44px; background: var(--nw-surface); }
 ${S} ${SELECTORS.toolbar} :has(> #nowave-splits) { align-items: center; }
@@ -258,6 +297,70 @@ ${SPLIT_ROW} > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: border-
 }
 `;
 
+// The folder switcher and Compose button, over Gmail's header (z-index 986).
+export const TOPBAR_CSS = `
+:host {
+  all: initial;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  z-index: 987;
+}
+button {
+  all: unset;
+  position: absolute;
+  top: 8px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  cursor: pointer;
+  font-family: var(--nw-font);
+  white-space: nowrap;
+}
+button:focus-visible { outline: 2px solid var(--nw-accent); outline-offset: 1px; }
+svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.switcher {
+  left: ${HEADER_SIDE + 16}px;
+  max-width: calc(50vw - ${HEADER_SIDE + 16 + 200 + 16}px);
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--nw-secondary);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 0.2px;
+}
+.switcher:hover { background: var(--nw-fill); }
+.name { overflow: hidden; text-overflow: ellipsis; }
+.compose {
+  right: ${HEADER_SIDE + 16}px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--nw-accent-fill);
+  color: var(--nw-accent-text);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+.compose:hover { background: var(--nw-wash); }
+@media (max-width: 900px) {
+  .compose span { display: none; }
+}
+`;
+
 // Inside the split bar's shadow root, applied while its host has the skin class.
 export const SPLIT_PILLS_CSS = `
 :host(.${SKIN_CLASS}) .bar {
@@ -334,45 +437,17 @@ export async function leaveRows(rows) {
   }
 }
 
-// 'collapse' | 'expand' | null. nowave folds Gmail's nav into its icon rail once per page load, and unfolds
-// it on the way out only if it was nowave that folded it.
+// 'expand' | null. Earlier versions folded Gmail's nav into its icon rail while the look was on; the look now hides
+// the nav, and turning it off unfolds a nav that nowave folded.
 export function navToggle({ skin, expanded, collapsedBySkin, clicked }) {
-  if (clicked) return null;
-  if (skin && expanded) return 'collapse';
-  if (!skin && !expanded && collapsedBySkin) return 'expand';
-  return null;
+  if (clicked || skin || expanded || !collapsedBySkin) return null;
+  return 'expand';
 }
 
 const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
 
 export function mainMenu() {
   return document.querySelector(SELECTORS.appReady) ? document.querySelector(SELECTORS.mainMenu) : null;
-}
-
-// Shortwave's rail never expands on hover, so while the look is on nowave takes Gmail's hover classes off the folded
-// nav as Gmail adds them. A MutationObserver callback runs before the next paint, so the overlay never shows. The
-// main menu button still expands the nav, which takes it out of the rail.
-export function createRailPin() {
-  const observer = new MutationObserver(unexpand);
-  let nav = null;
-
-  function unexpand() {
-    const hovered = HOVER_EXPAND_CLASSES.filter((c) => nav.classList.contains(c));
-    // classList.remove writes the attribute even when nothing changes, which would call this observer again.
-    if (nav.classList.contains(RAIL_CLASS) && hovered.length > 0) nav.classList.remove(...hovered);
-  }
-
-  return {
-    sync(skin) {
-      const next = skin ? document.querySelector(SELECTORS.nav) : null;
-      if (next === nav) return;
-      observer.disconnect();
-      nav = next;
-      if (!nav) return;
-      observer.observe(nav, { attributes: true, attributeFilter: ['class'] });
-      unexpand();
-    },
-  };
 }
 
 export const isNavExpanded = (button) => button.getAttribute('aria-expanded') === 'true';

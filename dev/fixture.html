@@ -81,8 +81,10 @@
     <div><div role="button" tabindex="0" aria-label="Main menu" aria-expanded="false">☰</div></div>
     <a href="#inbox">Gmail</a>
     <form role="search"><input aria-label="Search mail" placeholder="Search mail"><div id="suggestions" class="J-M" role="listbox" hidden>Search suggestions</div></form>
-    <button aria-label="Settings">⚙</button><button id="gbwa" aria-label="Google apps">Apps</button>
-    <div class="zo"><button aria-label="Help">?</button></div>
+    <div class="zo"><a role="button" tabindex="0" aria-label="Help">?</a></div>
+    <div class="FI"><a role="button" tabindex="0" aria-label="Settings">⚙</a></div>
+    <div><div><a role="button" href="https://www.google.com/intl/en/about/products" aria-label="Google apps">Apps</a></div></div>
+    <a href="https://accounts.google.com/SignOutOptions" aria-label="Google Account"><span><img class="gbii" alt="" width="26" height="26" src="data:image/gif;base64,R0lGODlhAQABAAAAACw="></span></a>
   </div></header>
   <div class="aqk">
     <nav role="navigation" class="aeN bhZ">
@@ -144,7 +146,9 @@
     }
     addEventListener('hashchange', route);
     route();
-    document.querySelector('[gh="cm"]').onclick = () => document.querySelector('#compose').hidden = false;
+    const openCompose = () => document.querySelector('#compose').hidden = false;
+    document.querySelector('[gh="cm"]').onclick = openCompose;
+    addEventListener('keydown', (e) => { if (e.key === 'c' && !e.target.closest('input, textarea, [contenteditable="true"]')) openCompose(); });
     document.querySelector('#close-compose').onclick = () => document.querySelector('#compose').hidden = true;
     document.querySelector('form').onsubmit = e => e.preventDefault();
     document.querySelector('form input').oninput = e => document.querySelector('#suggestions').hidden = !e.target.value;

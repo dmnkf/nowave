@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         nowave
 // @namespace    https://github.com/dmnkf/nowave
-// @version      1.0.4
+// @version      1.0.5
 // @description  Shortwave-style keys, a command palette and split inbox tabs for Gmail. No AI.
 // @author       Dominik Filliger
 // @license      MIT
@@ -180,6 +180,34 @@
     if (active < 0) return delta > 0 ? 0 : count - 1;
     return (active + delta + count) % count;
   }
+  var VIEWS = {
+    inbox: { name: "Inbox", icon: "inbox" },
+    starred: { name: "Starred", icon: "star" },
+    snoozed: { name: "Snoozed", icon: "clock" },
+    sent: { name: "Sent", icon: "send" },
+    drafts: { name: "Drafts", icon: "draft" },
+    all: { name: "Done", icon: "done" },
+    spam: { name: "Spam", icon: "spam" },
+    trash: { name: "Trash", icon: "trash" },
+    imp: { name: "Important", icon: "inbox" },
+    scheduled: { name: "Scheduled", icon: "clock" },
+    search: { name: "Search", icon: "search" },
+    "advanced-search": { name: "Search", icon: "search" },
+    settings: { name: "Settings", icon: "settings" }
+  };
+  function viewOf(hash, splits) {
+    const root = hash.replace(/^#/, "").split(/[/?]/)[0] || "inbox";
+    if (root === "search") {
+      const split = splits[activeSplitIndex(splits, hash)];
+      if (split) return { name: split.name, icon: "inbox" };
+    }
+    if (root === "label") return { name: labelName(hash) ?? "Label", icon: "label" };
+    if (root === "category") {
+      const category = decodeQuery(hash.split(/[/?]/)[1] ?? "");
+      return { name: category.charAt(0).toUpperCase() + category.slice(1), icon: "inbox" };
+    }
+    return VIEWS[root] ?? VIEWS.inbox;
+  }
   function closePaneHash(hash, nonce) {
     if (parseRoute(hash).view !== "list" || hash.includes("?")) return null;
     const path = hash.replace(/^#/, "") || "inbox";
@@ -346,12 +374,12 @@ html.${CALM_CLASS}.${SPLITS_MOUNTED_CLASS} [role="main"] [role="tablist"] {
     if (hash && paneOpen()) location.replace(hash);
   }
   function toggleSplitPane() {
-    const button = firstShown(SELECTORS.splitToggle);
-    if (!button) return;
-    const r = button.getBoundingClientRect();
+    const button2 = firstShown(SELECTORS.splitToggle);
+    if (!button2) return;
+    const r = button2.getBoundingClientRect();
     const at = { clientX: r.x + r.width / 2, clientY: r.y + r.height / 2 };
     for (const type of ["mouseover", "mousedown", "mouseup", "click"]) {
-      button.dispatchEvent(new MouseEvent(type, { ...at, button: 0, bubbles: true, cancelable: true, composed: true, view: window }));
+      button2.dispatchEvent(new MouseEvent(type, { ...at, button: 0, bubbles: true, cancelable: true, composed: true, view: window }));
     }
   }
   function checkedRows() {
@@ -652,6 +680,7 @@ html.${CALM_CLASS}.${SPLITS_MOUNTED_CLASS} [role="main"] [role="tablist"] {
       { id: "detect-gmail-keys", title: "Detect Gmail keyboard shortcuts", section: "Account", run: app2.detectGmailKeys }
     ];
   }
+  var isNavigation = (command) => /^(go-|label:|split:)/.test(command.id);
   var isNativeIn = (command, context2) => command.native === true || Array.isArray(command.native) && command.native.includes(context2);
   var isGmailKey = (command, seq) => command.gmailKeys?.some((keys) => sameSeq(keys, seq)) ?? false;
   function modeIn(command, context2, seq) {
@@ -732,10 +761,18 @@ html.${CALM_CLASS}.${SPLITS_MOUNTED_CLASS} [role="main"] [role="tablist"] {
     threadId: "[data-thread-id]",
     subject: "h2.hP",
     view: '[role="main"]',
-    nav: '[role="navigation"].aeN'
+    nav: '[role="navigation"].aeN',
+    mainMenuBox: 'header#gb div:has(> div[role="button"][aria-expanded])',
+    logo: 'header#gb a[href$="#inbox"]',
+    support: "header#gb .zo",
+    apps: 'header#gb div:has(> div > a[href*="/about/products"])',
+    searchOptions: '[gh="sda"]',
+    account: 'header#gb a[href*="accounts.google.com/SignOutOptions"]',
+    settings: "header#gb .FI",
+    card: ".bkK",
+    sidePanelColumn: ".aqk > div:has(> .aUx)"
   };
-  var RAIL_CLASS = "bhZ";
-  var HOVER_EXPAND_CLASSES = ["bym", "aaj", "bjB"];
+  var HEADER_SIDE = 48;
   var SPLIT = `${S} [gh="tl"].Nm`;
   var SPLIT_ROW = `${SPLIT} tr.zA:not(.Zs tr)`;
   var LEAVING_ATTR = "data-nowave-leaving";
@@ -744,99 +781,132 @@ html.${CALM_CLASS}.${SPLITS_MOUNTED_CLASS} [role="main"] [role="tablist"] {
   var reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   var SKIN_CSS = `
 ${S} {
-  --nw-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, "Segoe UI", Roboto, sans-serif;
-  --nw-text: #1c1d1f;
+  --nw-font: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --nw-page: rgb(229, 233, 243);
+  --nw-card: rgb(252, 252, 254);
   --nw-surface: #ffffff;
-  --nw-secondary: #5f636b;
-  --nw-tertiary: #6b7280;
-  --nw-hairline: rgba(0, 0, 0, 0.06);
-  --nw-chrome: #f7f7f8;
-  --nw-accent: #3d63f2;
-  --nw-wash: #eef2fe;
-  --nw-hover: #f5f6f8;
-  --nw-selected: #e2e8fd;
+  --nw-text: rgba(5, 3, 17, 0.87);
+  --nw-secondary: rgba(5, 3, 17, 0.54);
+  --nw-tertiary: rgba(5, 3, 17, 0.45);
+  --nw-subject: rgba(5, 0, 26, 0.75);
+  --nw-snippet: rgba(5, 0, 26, 0.45);
+  --nw-strong: rgba(5, 0, 26, 0.87);
+  --nw-border: rgba(5, 3, 17, 0.2);
+  --nw-rule: rgb(225, 224, 227);
+  --nw-fill: rgba(5, 3, 17, 0.08);
+  --nw-hairline: rgba(5, 3, 17, 0.08);
+  --nw-chrome: rgb(242, 244, 247);
+  --nw-accent: rgb(53, 106, 255);
+  --nw-accent-text: rgb(39, 91, 255);
+  --nw-accent-fill: rgba(53, 106, 255, 0.08);
+  --nw-wash: rgba(53, 106, 255, 0.16);
+  --nw-hover: rgb(235, 234, 236);
+  --nw-selected: rgb(204, 216, 254);
   --nw-ease: ${EASE};
   color-scheme: light;
 }
 ${S} body,
-${S} .wl { background: var(--nw-chrome) !important; }
-${S} .bkK { margin-right: 8px; }
-${S} .bkK > .nH {
-  border-radius: 12px;
-  background: var(--nw-surface);
-  box-shadow: 0 0 0 1px var(--nw-hairline);
-}
+${S} .wl { background: var(--nw-page) !important; }
 
-${S} header#gb { min-height: 52px; height: auto; }
-${S} header#gb > div:has([role="search"]) { height: 52px; padding-block: 0; align-items: center; }
-${S} header#gb div:has(> div[role="button"][aria-expanded]) { flex: none !important; min-width: 0 !important; }
-${S} header#gb a[href$="#inbox"] {
-  display: none !important;
-}
+${S} header#gb { height: 48px; min-height: 48px; background: transparent; }
+${S} header#gb > div:has(form[role="search"]) { height: 48px; padding-block: 0; }
+${S} :is(${SELECTORS2.mainMenuBox}, ${SELECTORS2.logo}, ${SELECTORS2.support}, ${SELECTORS2.apps}),
+${S} ${SELECTORS2.nav} { display: none !important; }
 ${S} header#gb form[role="search"] {
   anchor-name: --nw-search;
-  max-width: 560px;
-  height: auto;
-  min-height: 36px;
-  margin: 6px 0 6px -19px;
-  border: 0;
-  border-radius: 10px;
-  background: #eceef1;
+  position: fixed;
+  top: 5px;
+  left: calc(50% - 200px);
+  box-sizing: border-box;
+  width: 400px;
+  max-width: calc(100vw - 2 * ${HEADER_SIDE}px);
+  height: 38px;
+  min-height: 38px;
+  margin: 0;
+  border: 1px solid var(--nw-border);
+  border-radius: 8px;
+  background: var(--nw-surface);
   box-shadow: none;
 }
 ${S} header#gb form[role="search"] > :is(div, button) { height: 36px; }
-${S} header#gb form[role="search"] input { font: 14px var(--nw-font); color: var(--nw-text); }
-${S} header#gb form[role="search"]:focus-within {
-  background: var(--nw-surface);
-  box-shadow: 0 0 0 2px var(--nw-accent);
+${S} header#gb form[role="search"] > button:last-of-type { display: grid; place-items: center; width: 36px; padding: 0 0 0 4px; }
+${S} header#gb form[role="search"] > button:last-of-type svg { width: 20px; height: 20px; margin: 0; color: var(--nw-secondary); fill: currentColor; }
+${S} header#gb form[role="search"] > [gh="sb"] { margin: 0 40px 0 37px; }
+${S} header#gb form[role="search"] input { font: 14px/20px var(--nw-font); color: var(--nw-text); }
+${S} header#gb form[role="search"] input::placeholder { color: transparent; }
+${S} header#gb form[role="search"]:has(input:placeholder-shown)::after {
+  content: "Search emails, contacts, labels...";
+  position: absolute;
+  top: 8px;
+  left: 37px;
+  font: 14px/20px var(--nw-font);
+  color: var(--nw-tertiary);
+  pointer-events: none;
 }
-${S} header#gb a[href*="accounts.google.com/SignOutOptions"] { transform: scale(0.8); }
+${S} header#gb form[role="search"] ${SELECTORS2.searchOptions} { opacity: 0; }
+${S} header#gb form[role="search"]:is(:hover, :focus-within) ${SELECTORS2.searchOptions} { opacity: 1; }
+${S} header#gb form[role="search"]:focus-within { border-color: var(--nw-accent); }
 ${S} .ZF-Av {
   right: auto;
-  left: 80px;
+  left: calc(50% - 200px);
   left: anchor(--nw-search left);
-  width: 560px;
+  width: 400px;
   width: anchor-size(--nw-search width);
 }
-
-${S} [role="navigation"].aeN {
-  background: var(--nw-chrome);
-  box-shadow: inset -1px 0 var(--nw-hairline);
+${S} ${SELECTORS2.account} {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
 }
-${S} [role="navigation"] .TO { border-radius: 8px; }
-${S} [role="navigation"] .TO a { font-family: var(--nw-font); }
-${S} [role="navigation"] .TO:hover { background: var(--nw-hover); }
-${S} [role="navigation"] .TO:has(a[aria-current="page"]) { background: var(--nw-wash); }
-${S} [role="navigation"] .bsU { font: 500 11px var(--nw-font); color: var(--nw-secondary); }
-${S} [gh="cm"] {
-  interpolate-size: allow-keywords;
+${S} ${SELECTORS2.account} img { width: 32px !important; height: 32px !important; border-radius: 8px; }
+${S} ${SELECTORS2.account} > :not(span),
+${S} ${SELECTORS2.account}::before,
+${S} ${SELECTORS2.account} > span::after { display: none; }
+${S} ${SELECTORS2.account} > span { position: absolute; inset: 0; width: 32px; height: 32px; margin: 0; }
+${S} ${SELECTORS2.settings} {
+  position: fixed;
+  top: 48px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+}
+${S} ${SELECTORS2.settings} > a,
+${S} [role="complementary"] [role="tab"] {
   box-sizing: border-box;
-  width: fit-content !important;
-  min-width: 0 !important;
-  height: 40px !important;
-  margin: 4px 0 12px 12px !important;
-  padding: 0 16px 0 14px !important;
-  justify-content: flex-start;
-  overflow: hidden;
-  white-space: nowrap;
-  border-radius: 10px !important;
-  background: var(--nw-surface);
-  color: var(--nw-text);
-  font: 500 14px/20px var(--nw-font) !important;
-  box-shadow: 0 0 0 1px var(--nw-hairline), 0 1px 2px rgba(0, 0, 0, 0.06);
-  transition: width 160ms var(--nw-ease), padding 160ms var(--nw-ease), background-color 80ms var(--nw-ease);
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 8px;
+  color: var(--nw-secondary);
 }
-${S} [gh="cm"]::before {
-  flex: none;
-  width: 20px !important;
-  min-width: 0 !important;
-  height: 20px !important;
-  margin: 0 10px 0 0 !important;
-  background-size: 20px auto !important;
-  background-position: center !important;
+${S} ${SELECTORS2.settings} > a { display: grid; place-items: center; padding: 0; }
+${S} ${SELECTORS2.settings} > a:hover,
+${S} [role="complementary"] [role="tab"]:hover { background: var(--nw-fill); }
+${S} ${SELECTORS2.settings} svg { width: 20px; height: 20px; fill: currentColor; }
+
+${S} ${SELECTORS2.card} { margin: 0 0 0 ${HEADER_SIDE}px !important; }
+${S} ${SELECTORS2.card} > .nH {
+  min-height: calc(100vh - 48px);
+  margin-bottom: 0 !important;
+  border-radius: 8px 8px 0 0;
+  background: var(--nw-card);
+  box-shadow: none;
 }
-${S} ${SELECTORS2.nav}.${RAIL_CLASS} [gh="cm"] { width: 40px !important; padding: 0 10px !important; }
-${S} [gh="cm"]:hover { background: var(--nw-hover); }
+${S} ${SELECTORS2.sidePanelColumn} { flex: none; width: ${HEADER_SIDE}px; min-width: 0; background: transparent; }
+${S} ${SELECTORS2.sidePanelColumn} * { background-color: transparent; }
+${S} :is(.aUx, .aUx > *, [role="complementary"]) { width: ${HEADER_SIDE}px !important; min-width: 0 !important; }
+${S} [role="complementary"] [role="tablist"] { width: ${HEADER_SIDE}px; padding-top: 36px; }
+${S} [role="complementary"] [role="tab"] { position: relative; margin: 0 10px 8px; }
+${S} [role="complementary"] [role="tab"] > * {
+  inset: 0 !important;
+  width: 28px !important;
+  height: 28px !important;
+  background-size: 20px 20px !important;
+  filter: grayscale(1) contrast(1.2) opacity(0.62);
+}
+${S} [role="complementary"] [role="separator"] { width: 28px; margin: 0 10px 8px; }
 
 ${S} ${SELECTORS2.toolbar} { min-height: 44px; background: var(--nw-surface); }
 ${S} ${SELECTORS2.toolbar} :has(> #nowave-splits) { align-items: center; }
@@ -961,6 +1031,68 @@ ${SPLIT_ROW} > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: border-
   ${S} tr.zA, ${S} [gh="cm"] { transition: none; }
 }
 `;
+  var TOPBAR_CSS = `
+:host {
+  all: initial;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  z-index: 987;
+}
+button {
+  all: unset;
+  position: absolute;
+  top: 8px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  cursor: pointer;
+  font-family: var(--nw-font);
+  white-space: nowrap;
+}
+button:focus-visible { outline: 2px solid var(--nw-accent); outline-offset: 1px; }
+svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.switcher {
+  left: ${HEADER_SIDE + 16}px;
+  max-width: calc(50vw - ${HEADER_SIDE + 16 + 200 + 16}px);
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--nw-secondary);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  letter-spacing: 0.2px;
+}
+.switcher:hover { background: var(--nw-fill); }
+.name { overflow: hidden; text-overflow: ellipsis; }
+.compose {
+  right: ${HEADER_SIDE + 16}px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--nw-accent-fill);
+  color: var(--nw-accent-text);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+.compose:hover { background: var(--nw-wash); }
+@media (max-width: 900px) {
+  .compose span { display: none; }
+}
+`;
   var SPLIT_PILLS_CSS = `
 :host(.${SKIN_CLASS}) .bar {
   position: relative;
@@ -1028,41 +1160,20 @@ ${SPLIT_ROW} > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: border-
     }
   }
   function navToggle({ skin, expanded, collapsedBySkin, clicked }) {
-    if (clicked) return null;
-    if (skin && expanded) return "collapse";
-    if (!skin && !expanded && collapsedBySkin) return "expand";
-    return null;
+    if (clicked || skin || expanded || !collapsedBySkin) return null;
+    return "expand";
   }
   var nextFrame2 = () => new Promise((resolve) => requestAnimationFrame(resolve));
   function mainMenu() {
     return document.querySelector(SELECTORS2.appReady) ? document.querySelector(SELECTORS2.mainMenu) : null;
   }
-  function createRailPin() {
-    const observer = new MutationObserver(unexpand);
-    let nav = null;
-    function unexpand() {
-      const hovered = HOVER_EXPAND_CLASSES.filter((c) => nav.classList.contains(c));
-      if (nav.classList.contains(RAIL_CLASS) && hovered.length > 0) nav.classList.remove(...hovered);
-    }
-    return {
-      sync(skin) {
-        const next = skin ? document.querySelector(SELECTORS2.nav) : null;
-        if (next === nav) return;
-        observer.disconnect();
-        nav = next;
-        if (!nav) return;
-        observer.observe(nav, { attributes: true, attributeFilter: ["class"] });
-        unexpand();
-      }
-    };
-  }
-  var isNavExpanded = (button) => button.getAttribute("aria-expanded") === "true";
-  async function clickMainMenu(button) {
-    const before = isNavExpanded(button);
-    button.click();
+  var isNavExpanded = (button2) => button2.getAttribute("aria-expanded") === "true";
+  async function clickMainMenu(button2) {
+    const before = isNavExpanded(button2);
+    button2.click();
     const deadline = Date.now() + 1e3;
     while (Date.now() < deadline) {
-      if (isNavExpanded(button) !== before) return true;
+      if (isNavExpanded(button2) !== before) return true;
       await nextFrame2();
     }
     return false;
@@ -1352,8 +1463,8 @@ kbd {
       close,
       handleKey,
       letsThrough,
-      open({ commands: commands2, recent }) {
-        show({ kind: "commands", commands: commands2, recent }, "Type a command", "");
+      open({ commands: commands2, recent, placeholder = "Type a command or search..." }) {
+        show({ kind: "commands", commands: commands2, recent }, placeholder, "");
       },
       prompt({ placeholder, value = "" }) {
         return new Promise((resolve) => show({ kind: "prompt", resolve }, placeholder, value));
@@ -1585,6 +1696,79 @@ kbd {
     };
   }
 
+  // src/topbar.js
+  var SVG = "http://www.w3.org/2000/svg";
+  var ICONS = {
+    inbox: ["M3 11.5 5.3 4.7A1 1 0 0 1 6.2 4h7.6a1 1 0 0 1 .9.7L17 11.5V15a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z", "M3 11.5h4l1 2h4l1-2h4"],
+    star: ["m10 3 2.1 4.4 4.9.7-3.5 3.4.8 4.8L10 14l-4.3 2.3.8-4.8L3 8.1l4.9-.7z"],
+    clock: ["M10 17a7 7 0 1 0 0-14 7 7 0 0 0 0 14", "M10 6.5V10l2.5 1.5"],
+    send: ["M3.5 9.6 16.5 3.5l-4.6 13-2.6-5.3z", "M9.3 11.2 16.5 3.5"],
+    draft: ["M5 3.5h6.5L15 7v9.5H5z", "M11.5 3.5V7H15"],
+    done: ["m4 10.5 3.5 3.5L16 5.5"],
+    label: ["M3.5 3.5h6.3l6.7 6.7-6.3 6.3-6.7-6.7z", "M7.3 7.3h.01"],
+    search: ["M9 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12", "m13.5 13.5 3.5 3.5"],
+    spam: ["M10 3 17 16H3z", "M10 8.5v3.5", "M10 14.2h.01"],
+    trash: ["M4 6h12", "M8 6V4h4v2", "M5.5 6l.7 10h7.6l.7-10"],
+    settings: ["M10 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5", "M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"],
+    chevron: ["m6 8 4 4 4-4"],
+    compose: ["M12.6 4.4 15.6 7.4 7 16H4v-3z", "M10.8 6.2l3 3"]
+  };
+  function icon(name, className) {
+    const svg = document.createElementNS(SVG, "svg");
+    svg.setAttribute("viewBox", "0 0 20 20");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("class", className);
+    for (const d of ICONS[name] ?? ICONS.inbox) {
+      const path = document.createElementNS(SVG, "path");
+      path.setAttribute("d", d);
+      svg.append(path);
+    }
+    return svg;
+  }
+  function button(className, label) {
+    const el2 = document.createElement("button");
+    el2.type = "button";
+    el2.className = className;
+    el2.setAttribute("aria-label", label);
+    el2.addEventListener("mousedown", (e) => e.preventDefault());
+    return el2;
+  }
+  function createTopbar({ onSwitch, onCompose }) {
+    const host = document.createElement("div");
+    host.id = "nowave-topbar";
+    const root = host.attachShadow({ mode: "closed" });
+    const style2 = document.createElement("style");
+    style2.textContent = TOPBAR_CSS;
+    const switcher = button("switcher", "Go to");
+    const name = document.createElement("span");
+    name.className = "name";
+    switcher.append(icon("inbox", "icon"), name, icon("chevron", "chevron"));
+    switcher.addEventListener("click", () => onSwitch());
+    const compose = button("compose", "Compose");
+    const composeLabel = document.createElement("span");
+    composeLabel.textContent = "Compose";
+    compose.append(icon("compose", "icon"), composeLabel);
+    compose.addEventListener("click", () => onCompose());
+    root.append(style2, switcher, compose);
+    let rendered = "";
+    return {
+      // view: { name, icon } from viewOf().
+      render(view) {
+        const key = `${view.icon}
+${view.name}`;
+        if (key !== rendered) {
+          rendered = key;
+          switcher.firstChild.replaceWith(icon(view.icon, "icon"));
+          name.textContent = view.name;
+        }
+        if (!host.isConnected) document.body.append(host);
+      },
+      unmount() {
+        host.remove();
+      }
+    };
+  }
+
   // nowave.user.js
   var isMac = /Mac|iPhone|iPad/.test(navigator.platform);
   var keySequence = createKeySequence(isMac);
@@ -1660,6 +1844,12 @@ kbd {
       if (loading()) return;
       palette.open({ commands: commands(labels()), recent: cheatSheet ? [] : settings.recent });
     },
+    openSwitcher() {
+      palette.open({ commands: commands(labels()).filter(isNavigation), recent: [], placeholder: "Go to..." });
+    },
+    compose() {
+      sendSequence(["c"]);
+    },
     enqueue: createActionQueue(() => palette.isOpen() ? null : location.hash),
     leaveRows: (rows) => settings.skin ? leaveRows(rows) : void 0,
     notice: (notice) => palette.notice(notice)
@@ -1675,7 +1865,7 @@ kbd {
     }
   });
   var splitBar = createSplitBar({ onSelect: app.goToSplit });
-  var railPin = createRailPin();
+  var topbar = createTopbar({ onSwitch: app.openSwitcher, onCompose: app.compose });
   var style = document.createElement("style");
   style.id = "nowave-style";
   style.textContent = CALM_CSS + SKIN_CSS;
@@ -1697,17 +1887,17 @@ kbd {
   }
   var navClicked = false;
   function syncNav() {
-    const button = mainMenu();
-    if (!button) return;
+    const button2 = mainMenu();
+    if (!button2) return;
     const toggle = navToggle({
       skin: settings.skin,
-      expanded: isNavExpanded(button),
+      expanded: isNavExpanded(button2),
       collapsedBySkin: settings.navCollapsedBySkin,
       clicked: navClicked
     });
     if (!toggle) return;
     navClicked = true;
-    clickMainMenu(button).then((ok) => {
+    clickMainMenu(button2).then((ok) => {
       if (ok) update({ ...settings, navCollapsedBySkin: toggle === "collapse" });
     });
   }
@@ -1722,7 +1912,8 @@ kbd {
     }
     syncNav();
     palette.setSkin(settings.skin);
-    railPin.sync(settings.skin);
+    if (settings.skin) topbar.render(viewOf(location.hash, settings.splits));
+    else topbar.unmount();
     syncGmailKeys();
     const view = parseRoute(location.hash).view;
     const shownList = view === "list" ? findThreadList() : null;

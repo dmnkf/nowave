@@ -47,14 +47,44 @@ async function paletteCommand(page, title) {
   await page.keyboard.press('Enter');
 }
 
-test('keeps native actions, search filters, apps and side panel beside the split navigation', async ({ page }) => {
+test('keeps native actions, search filters, settings and side panel, and hides what Shortwave has no place for', async ({ page }) => {
   await open(page);
-  for (const name of ['Select all', 'Refresh', 'Archive', 'More', 'Has attachment', 'Google apps', 'Help', 'Tasks']) {
+  for (const name of ['Select all', 'Refresh', 'Archive', 'More', 'Has attachment', 'Settings', 'Tasks']) {
     await expect(page.getByRole('button', { name, exact: true })).toBeVisible();
   }
+  for (const name of ['Google apps', 'Help', 'Main menu']) {
+    await expect(page.getByRole('button', { name, exact: true })).toBeHidden();
+  }
+  await expect(page.getByRole('navigation')).toBeHidden();
   expect(await page.locator('#nowave-splits').evaluate(el => !el.closest('[gh="tl"]') && !!el.closest('[gh="tm"]') && el.nextElementSibling.matches('[gh="mtb"]'))).toBe(true);
   await page.getByRole('button', { name: 'Select all', exact: true }).click();
   await expect(page.getByRole('checkbox', { name: 'Select Linear' })).toHaveAttribute('aria-checked', 'true');
+});
+
+test('lays out the page like Shortwave: gutter, centred search, folder switcher and Compose', async ({ page }) => {
+  await open(page);
+  const rect = (selector) => page.locator(selector).evaluate((el) => {
+    const { x, y, width, height } = el.getBoundingClientRect();
+    return { x, y, width, height };
+  });
+  const search = await rect('header#gb form[role="search"]');
+  expect(search).toEqual({ x: 1280 / 2 - 200, y: 5, width: 400, height: 38 });
+  expect((await rect('.bkK')).x).toBe(48);
+  expect(await style(page.locator('body'), 'backgroundColor')).toBe('rgb(229, 233, 243)');
+  const top = await page.evaluate(() => {
+    const root = window.fixtureRoots.get('nowave-topbar');
+    const box = (el) => { const { x, y, width, height } = el.getBoundingClientRect(); return { x, y, width, height }; };
+    return { name: root.querySelector('.name').textContent, switcher: box(root.querySelector('.switcher')), compose: box(root.querySelector('.compose')) };
+  });
+  expect(top.name).toBe('Inbox');
+  expect(top.switcher.x).toBe(64);
+  expect(top.compose.x + top.compose.width).toBe(1280 - 64);
+  await page.evaluate(() => location.hash = '#sent');
+  await expect.poll(() => page.evaluate(() => window.fixtureRoots.get('nowave-topbar').querySelector('.name').textContent)).toBe('Sent');
+  await page.evaluate(() => window.fixtureRoots.get('nowave-topbar').querySelector('.switcher').click());
+  await expect.poll(() => page.evaluate(() => [...window.fixtureRoots.get('nowave-palette').querySelectorAll('[role="option"]')].map((row) => row.querySelector('.title').textContent))).toContain('Go to Inbox');
+  const titles = await page.evaluate(() => [...window.fixtureRoots.get('nowave-palette').querySelectorAll('[role="option"]')].map((row) => row.querySelector('.title').textContent));
+  expect(titles.every((title) => title.startsWith('Go to'))).toBe(true);
 });
 
 test('keeps selection and stars operable and does not mistake a star for a selected row', async ({ page }) => {
@@ -63,7 +93,7 @@ test('keeps selection and stars operable and does not mistake a star for a selec
   expect(await style(read, 'backgroundColor')).toBe('rgba(0, 0, 0, 0)');
   await expect(page.getByRole('checkbox', { name: 'Star Figma' })).toBeVisible();
   await page.getByRole('checkbox', { name: 'Select Figma' }).click();
-  await expect(read).toHaveCSS('background-color', 'rgb(226, 232, 253)');
+  await expect(read).toHaveCSS('background-color', 'rgb(204, 216, 254)');
   await page.getByRole('checkbox', { name: 'Star Figma' }).click();
   await expect(page.getByRole('checkbox', { name: 'Star Figma' })).toHaveAttribute('aria-checked', 'false');
 });
@@ -74,7 +104,7 @@ test('preserves custom label colors and distinguishes unread subjects from read 
   expect(await style(page.locator('.av'), 'color')).toBe('rgb(19, 115, 51)');
   expect(await style(page.locator('#unread-row .yW'), 'fontWeight')).toBe('600');
   expect(await style(page.locator('#read-row .yW'), 'fontWeight')).toBe('400');
-  expect(await style(page.locator('#unread-row .y2'), 'color')).toBe('rgb(107, 114, 128)');
+  expect(await style(page.locator('#unread-row .y2'), 'color')).toBe('rgba(5, 3, 17, 0.45)');
 });
 
 test('styles the thread shell without changing message or inline-reply formatting', async ({ page }) => {
@@ -93,7 +123,7 @@ test('styles the thread shell without changing message or inline-reply formattin
 
 test('styles compose chrome but leaves draft content and native actions intact', async ({ page }) => {
   await open(page);
-  await page.getByRole('button', { name: 'Compose', exact: true }).click();
+  await page.evaluate(() => window.fixtureRoots.get('nowave-topbar').querySelector('.compose').click());
   await expect(page.getByRole('textbox', { name: 'Recipients', exact: true })).toBeVisible();
   expect(await style(page.locator('#compose .M9'), 'borderTopLeftRadius')).toBe('12px');
   expect(await style(page.locator('#compose .aYF'), 'backgroundColor')).toBe('rgb(247, 247, 248)');

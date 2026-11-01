@@ -211,6 +211,9 @@ export function buildCommands(app, { splits, labels, gmail = GMAIL_KEYS, isMac =
   ];
 }
 
+// The commands the folder switcher offers: views, labels and splits.
+export const isNavigation = (command) => /^(go-|label:|split:)/.test(command.id);
+
 const isNativeIn = (command, context) =>
   command.native === true || (Array.isArray(command.native) && command.native.includes(context));
 

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildCommands, bindingsFor } from '../src/commands.js';
+import { buildCommands, bindingsFor, isNavigation } from '../src/commands.js';
 import { gmailKeyMap } from '../src/gmail.js';
 import { createKeySequence, resolveKey } from '../src/keys.js';
 import { DEFAULT_SPLITS } from '../src/settings.js';
@@ -355,4 +355,24 @@ test('a command sends the first of Gmail\'s keys for its action', async () => {
   const { commands } = setup(gmailKeyMap({ back: [['shift+b'], ['u']] }));
   const back = resolveKey(bindingsFor(commands, 'thread'), { chords: [], at: 0 }, 'h', 1000).command;
   assert.deepEqual(await sentInThread(() => back.run()), ['B']);
+});
+
+test('the folder switcher offers views, labels and splits, and nothing that acts on mail', () => {
+  const { commands } = setup();
+  const titles = commands.filter(isNavigation).map((c) => c.title);
+  assert.deepEqual(titles, [
+    'Go to Inbox',
+    'Go to Starred',
+    'Go to Sent',
+    'Go to Drafts',
+    'Go to Snoozed',
+    'Go to Done (All Mail)',
+    'Go to Spam',
+    'Go to Trash',
+    'Go to label: Receipts',
+    'Go to split: Inbox',
+    'Go to split: Updates',
+    'Go to split: Promotions',
+    'Go to split: Social',
+  ]);
 });
