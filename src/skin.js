@@ -173,16 +173,21 @@ ${S} [role="complementary"] [role="tab"] > * {
 }
 ${S} [role="complementary"] [role="separator"] { width: 28px; margin: 0 10px 8px; }
 
-${S} ${SELECTORS.toolbar} { min-height: 44px; background: var(--nw-surface); }
-${S} ${SELECTORS.toolbar} :has(> #nowave-splits) { align-items: center; }
-${S} #nowave-splits {
-  flex: none;
-  min-width: 0;
-  margin: 0 12px 0 -8px;
-  padding-right: 12px;
-  border-right: 1px solid var(--nw-hairline);
-  background: var(--nw-surface);
+${S} ${SELECTORS.toolbar} {
+  box-sizing: border-box;
+  height: 48px;
+  min-height: 48px;
+  padding: 0 16px 0 12px !important;
+  background: transparent;
 }
+${S} ${SELECTORS.toolbar} > :has(> #nowave-splits) { align-items: center; height: 48px; padding: 0; margin: 0; }
+${S} #nowave-splits { flex: none; min-width: 0; margin: 0 8px 0 0; }
+${S} ${SELECTORS.toolbarActions} .G-Ni:is(:has(> [role="button"] [role="checkbox"]), :has(> [act="20"]), :has(> .nf)) {
+  display: none;
+}
+${S} ${SELECTORS.toolbar} .Cr { opacity: 0.6; }
+${S} ${SELECTORS.toolbar} .Cr :is(.Dj, .Dj *) { font: 12px/16px var(--nw-font) !important; color: var(--nw-tertiary); }
+${S} ${SELECTORS.toolbar} [role="toolbar"] { font-family: var(--nw-font); }
 
 ${S} tr.zA > td.PF { display: none !important; }
 ${S} tr.zA > :is(td.oZ-x3, td.apU, td.WA) { opacity: 0.6; }
@@ -211,16 +216,36 @@ ${S} tr.zA.btb {
   box-shadow: inset 3px 0 var(--nw-accent) !important;
 }
 ${S} ${SELECTORS.subject} { font: 600 22px/1.3 var(--nw-font) !important; color: var(--nw-text); }
-${S} h3.Wr { min-height: 0 !important; height: 28px !important; padding: 12px 0 0 12px !important; }
-${S} h3.Wr .qh {
-  font: 600 11px/16px var(--nw-font) !important;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--nw-tertiary) !important;
+${S} .Wg {
+  position: relative;
+  box-sizing: border-box;
+  height: 28px !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 24px !important;
+  align-items: center;
+  border-bottom: 1px solid var(--nw-rule);
 }
-${S} h3.Wr img.qi { opacity: 0.4; transform: scale(0.75); }
-${S} .Wg .Dj,
-${S} .Wg .Dj * { font: 500 11px/16px var(--nw-font) !important; color: var(--nw-tertiary) !important; }
+${S} .Wg > .d9yJeb { flex: 1; margin: 0 !important; }
+${S} .Wg .chp5lb { display: none; }
+${S} h3.Wr {
+  position: static;
+  height: 28px !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  align-items: center;
+  justify-content: flex-start !important;
+  text-align: left;
+}
+${S} h3.Wr .Wn { height: auto; margin: 0; padding: 0; }
+${S} h3.Wr .qh {
+  font: 500 11px/16px var(--nw-font) !important;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--nw-secondary) !important;
+}
+${S} h3.Wr img.qi { position: absolute; top: -1px; right: 17px; margin: 0; opacity: 0.45; transform: scale(0.6); }
 ${S} tr.zA :is(td.yX, .bog),
 ${S} tr.zA :is(td.yX, .bog) * { font-weight: 400 !important; color: var(--nw-text) !important; }
 ${S} tr.zA.yO .bog,
@@ -362,46 +387,36 @@ svg {
 `;
 
 // Inside the split bar's shadow root, applied while its host has the skin class.
-export const SPLIT_PILLS_CSS = `
+export const SPLIT_TABS_CSS = `
 :host(.${SKIN_CLASS}) .bar {
-  position: relative;
-  gap: 2px;
-  height: 32px;
-  padding: 0;
+  gap: 25px;
+  height: 48px;
+  padding: 10px 4px;
+  box-sizing: border-box;
   border: 0;
   align-items: center;
-  color: var(--nw-text);
-  font: 500 14px var(--nw-font);
+  font: 500 16px/24px var(--nw-font);
+  letter-spacing: 0.2px;
 }
 :host(.${SKIN_CLASS}) .tab {
-  position: relative;
-  z-index: 1;
+  box-sizing: border-box;
+  height: 28px;
   margin: 0;
-  padding: 5px 10px;
+  padding: 2px 8px;
   border: 0;
   border-radius: 8px;
   opacity: 1;
-  color: var(--nw-secondary);
-  line-height: 20px;
+  color: var(--nw-tertiary);
 }
-:host(.${SKIN_CLASS}) .tab:hover,
-:host(.${SKIN_CLASS}) .tab[aria-selected="true"] { color: var(--nw-text); }
+:host(.${SKIN_CLASS}) .tab:hover { color: var(--nw-text); }
+:host(.${SKIN_CLASS}) .tab[aria-selected="true"] { background: var(--nw-fill); color: var(--nw-text); }
 :host(.${SKIN_CLASS}) .count {
-  margin-left: 6px;
+  margin-left: 4px;
+  font: 400 13px/16px var(--nw-font);
+  letter-spacing: 0;
   color: var(--nw-tertiary);
   font-variant-numeric: tabular-nums;
 }
-.pill { display: none; }
-:host(.${SKIN_CLASS}) .pill {
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-radius: 8px;
-  background: var(--nw-hairline);
-  pointer-events: none;
-}
-:host(.${SKIN_CLASS}) .pill[hidden] { display: none; }
 `;
 
 // The split tabs open Gmail's own control row, ahead of select, refresh and more, so tabs and controls share one

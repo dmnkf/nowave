@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         nowave
 // @namespace    https://github.com/dmnkf/nowave
-// @version      1.0.5
+// @version      1.0.6
 // @description  Shortwave-style keys, a command palette and split inbox tabs for Gmail. No AI.
 // @author       Dominik Filliger
 // @license      MIT
@@ -908,16 +908,21 @@ ${S} [role="complementary"] [role="tab"] > * {
 }
 ${S} [role="complementary"] [role="separator"] { width: 28px; margin: 0 10px 8px; }
 
-${S} ${SELECTORS2.toolbar} { min-height: 44px; background: var(--nw-surface); }
-${S} ${SELECTORS2.toolbar} :has(> #nowave-splits) { align-items: center; }
-${S} #nowave-splits {
-  flex: none;
-  min-width: 0;
-  margin: 0 12px 0 -8px;
-  padding-right: 12px;
-  border-right: 1px solid var(--nw-hairline);
-  background: var(--nw-surface);
+${S} ${SELECTORS2.toolbar} {
+  box-sizing: border-box;
+  height: 48px;
+  min-height: 48px;
+  padding: 0 16px 0 12px !important;
+  background: transparent;
 }
+${S} ${SELECTORS2.toolbar} > :has(> #nowave-splits) { align-items: center; height: 48px; padding: 0; margin: 0; }
+${S} #nowave-splits { flex: none; min-width: 0; margin: 0 8px 0 0; }
+${S} ${SELECTORS2.toolbarActions} .G-Ni:is(:has(> [role="button"] [role="checkbox"]), :has(> [act="20"]), :has(> .nf)) {
+  display: none;
+}
+${S} ${SELECTORS2.toolbar} .Cr { opacity: 0.6; }
+${S} ${SELECTORS2.toolbar} .Cr :is(.Dj, .Dj *) { font: 12px/16px var(--nw-font) !important; color: var(--nw-tertiary); }
+${S} ${SELECTORS2.toolbar} [role="toolbar"] { font-family: var(--nw-font); }
 
 ${S} tr.zA > td.PF { display: none !important; }
 ${S} tr.zA > :is(td.oZ-x3, td.apU, td.WA) { opacity: 0.6; }
@@ -946,16 +951,36 @@ ${S} tr.zA.btb {
   box-shadow: inset 3px 0 var(--nw-accent) !important;
 }
 ${S} ${SELECTORS2.subject} { font: 600 22px/1.3 var(--nw-font) !important; color: var(--nw-text); }
-${S} h3.Wr { min-height: 0 !important; height: 28px !important; padding: 12px 0 0 12px !important; }
-${S} h3.Wr .qh {
-  font: 600 11px/16px var(--nw-font) !important;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--nw-tertiary) !important;
+${S} .Wg {
+  position: relative;
+  box-sizing: border-box;
+  height: 28px !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 24px !important;
+  align-items: center;
+  border-bottom: 1px solid var(--nw-rule);
 }
-${S} h3.Wr img.qi { opacity: 0.4; transform: scale(0.75); }
-${S} .Wg .Dj,
-${S} .Wg .Dj * { font: 500 11px/16px var(--nw-font) !important; color: var(--nw-tertiary) !important; }
+${S} .Wg > .d9yJeb { flex: 1; margin: 0 !important; }
+${S} .Wg .chp5lb { display: none; }
+${S} h3.Wr {
+  position: static;
+  height: 28px !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  align-items: center;
+  justify-content: flex-start !important;
+  text-align: left;
+}
+${S} h3.Wr .Wn { height: auto; margin: 0; padding: 0; }
+${S} h3.Wr .qh {
+  font: 500 11px/16px var(--nw-font) !important;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--nw-secondary) !important;
+}
+${S} h3.Wr img.qi { position: absolute; top: -1px; right: 17px; margin: 0; opacity: 0.45; transform: scale(0.6); }
 ${S} tr.zA :is(td.yX, .bog),
 ${S} tr.zA :is(td.yX, .bog) * { font-weight: 400 !important; color: var(--nw-text) !important; }
 ${S} tr.zA.yO .bog,
@@ -1093,46 +1118,36 @@ svg {
   .compose span { display: none; }
 }
 `;
-  var SPLIT_PILLS_CSS = `
+  var SPLIT_TABS_CSS = `
 :host(.${SKIN_CLASS}) .bar {
-  position: relative;
-  gap: 2px;
-  height: 32px;
-  padding: 0;
+  gap: 25px;
+  height: 48px;
+  padding: 10px 4px;
+  box-sizing: border-box;
   border: 0;
   align-items: center;
-  color: var(--nw-text);
-  font: 500 14px var(--nw-font);
+  font: 500 16px/24px var(--nw-font);
+  letter-spacing: 0.2px;
 }
 :host(.${SKIN_CLASS}) .tab {
-  position: relative;
-  z-index: 1;
+  box-sizing: border-box;
+  height: 28px;
   margin: 0;
-  padding: 5px 10px;
+  padding: 2px 8px;
   border: 0;
   border-radius: 8px;
   opacity: 1;
-  color: var(--nw-secondary);
-  line-height: 20px;
+  color: var(--nw-tertiary);
 }
-:host(.${SKIN_CLASS}) .tab:hover,
-:host(.${SKIN_CLASS}) .tab[aria-selected="true"] { color: var(--nw-text); }
+:host(.${SKIN_CLASS}) .tab:hover { color: var(--nw-text); }
+:host(.${SKIN_CLASS}) .tab[aria-selected="true"] { background: var(--nw-fill); color: var(--nw-text); }
 :host(.${SKIN_CLASS}) .count {
-  margin-left: 6px;
+  margin-left: 4px;
+  font: 400 13px/16px var(--nw-font);
+  letter-spacing: 0;
   color: var(--nw-tertiary);
   font-variant-numeric: tabular-nums;
 }
-.pill { display: none; }
-:host(.${SKIN_CLASS}) .pill {
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-radius: 8px;
-  background: var(--nw-hairline);
-  pointer-events: none;
-}
-:host(.${SKIN_CLASS}) .pill[hidden] { display: none; }
 `;
   function splitBarAnchor(list) {
     const view = list.closest(SELECTORS2.view) ?? document;
@@ -1578,7 +1593,7 @@ kbd {
     host.id = "nowave-splits";
     const root = host.attachShadow({ mode: "closed" });
     const style2 = document.createElement("style");
-    style2.textContent = CSS2 + SPLIT_PILLS_CSS;
+    style2.textContent = CSS2 + SPLIT_TABS_CSS;
     const bar = document.createElement("div");
     bar.className = "bar";
     bar.setAttribute("role", "tablist");
@@ -1600,60 +1615,43 @@ kbd {
       tabs[next].focus({ preventScroll: true });
       onSelect(next);
     });
-    const pill = document.createElement("div");
-    pill.className = "pill";
     let rendered = "";
-    let placed = null;
-    let needsPlace = false;
+    let needsReveal = false;
     let frame = null;
     const observer = new ResizeObserver(() => {
       if (frame !== null) return;
       frame = requestAnimationFrame(() => {
         frame = null;
-        if (host.isConnected) place();
+        if (host.isConnected) reveal();
       });
     });
     function observe() {
       observer.disconnect();
       observer.observe(bar);
-      for (const tab of bar.querySelectorAll(".tab")) observer.observe(tab);
     }
-    function place() {
-      needsPlace = false;
+    function reveal() {
+      needsReveal = false;
       const tab = bar.querySelector('[aria-selected="true"]');
-      pill.hidden = !tab || !host.classList.contains(SKIN_CLASS);
-      if (tab) {
-        const left = tab.getBoundingClientRect().left - bar.getBoundingClientRect().left + bar.scrollLeft;
-        if (left < bar.scrollLeft) bar.scrollLeft = left;
-        else if (left + tab.offsetWidth > bar.scrollLeft + bar.clientWidth) {
-          bar.scrollLeft = left + tab.offsetWidth - bar.clientWidth;
-        }
+      if (!tab) return;
+      const left = tab.getBoundingClientRect().left - bar.getBoundingClientRect().left + bar.scrollLeft;
+      if (left < bar.scrollLeft) bar.scrollLeft = left;
+      else if (left + tab.offsetWidth > bar.scrollLeft + bar.clientWidth) {
+        bar.scrollLeft = left + tab.offsetWidth - bar.clientWidth;
       }
-      if (pill.hidden) {
-        placed = null;
-        return;
-      }
-      const next = { transform: `translate(${tab.offsetLeft}px, ${tab.offsetTop}px)`, width: `${tab.offsetWidth}px` };
-      if (placed?.transform === next.transform && placed.width === next.width) return;
-      Object.assign(pill.style, next, { height: `${tab.offsetHeight}px` });
-      for (const animation of pill.getAnimations()) animation.cancel();
-      if (placed && !reducedMotion()) pill.animate([placed, next], { duration: 120, easing: EASE });
-      placed = next;
     }
     return {
       setSkin(on) {
         if (host.classList.contains(SKIN_CLASS) === on) return;
         host.classList.toggle(SKIN_CLASS, on);
-        needsPlace = true;
+        needsReveal = true;
       },
       render(splits, active, counts = []) {
         const key = JSON.stringify([splits, active, counts]);
         if (key === rendered) return;
         rendered = key;
-        needsPlace = true;
+        needsReveal = true;
         const focused = bar.contains(root.activeElement);
         bar.replaceChildren(
-          pill,
           ...splits.map((split, i) => {
             const tab = document.createElement("button");
             tab.className = "tab";
@@ -1681,16 +1679,15 @@ kbd {
         if (host.parentNode !== anchor.parentNode || host.nextSibling !== anchor) {
           anchor.parentNode.insertBefore(host, anchor);
           observe();
-          needsPlace = true;
+          needsReveal = true;
         }
-        if (needsPlace) place();
+        if (needsReveal) reveal();
       },
       unmount() {
         observer.disconnect();
         if (frame !== null) cancelAnimationFrame(frame);
         frame = null;
-        placed = null;
-        needsPlace = true;
+        needsReveal = true;
         host.remove();
       }
     };

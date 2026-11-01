@@ -24,19 +24,23 @@ async function splitState(page) {
     const root = window.fixtureRoots.get('nowave-splits');
     const bar = root.querySelector('.bar');
     const tab = root.querySelector('[aria-selected="true"]');
-    const pill = root.querySelector('.pill');
     const bounds = (el) => {
       const { left, right, top, width, height } = el.getBoundingClientRect();
       return { left, right, top, width, height };
     };
-    return { bar: bounds(bar), tab: tab && bounds(tab), pill: bounds(pill), hidden: pill.hidden, scroll: bar.scrollLeft };
+    return {
+      bar: bounds(bar),
+      tab: tab && bounds(tab),
+      background: tab && getComputedStyle(tab).backgroundColor,
+      scroll: bar.scrollLeft,
+    };
   });
 }
 
 async function aligned(page) {
   await expect.poll(async () => {
-    const { tab, pill, hidden } = await splitState(page);
-    return !hidden && tab && Math.abs(tab.left - pill.left) < 1 && Math.abs(tab.top - pill.top) < 1 && Math.abs(tab.width - pill.width) < 1;
+    const { bar, tab, background } = await splitState(page);
+    return Boolean(tab) && background === 'rgba(5, 3, 17, 0.08)' && tab.left >= bar.left - 1 && tab.right <= bar.right + 1;
   }).toBe(true);
 }
 
@@ -260,24 +264,46 @@ test('keeps a half-pixel-wide reading pane free of a horizontal scrollbar while 
   expect(result.bodyScrolls).toBe(true);
 });
 
-test('hides the highlight on lists which do not match a split and restores it on return', async ({ page }) => {
+test('marks no tab on lists which do not match a split and marks the split again on return', async ({ page }) => {
   await open(page);
   await aligned(page);
   await page.evaluate(() => location.hash = '#sent');
-  await expect.poll(async () => (await splitState(page)).hidden).toBe(true);
+  await expect.poll(async () => (await splitState(page)).tab).toBe(null);
   await page.evaluate(() => location.hash = '#inbox');
   await aligned(page);
 });
 
-test('repositions the split highlight after font-size and count changes without a Gmail mutation', async ({ page }) => {
+test('styles the split tabs like Shortwave and hides Gmail\'s select, refresh and more', async ({ page }) => {
   await open(page);
-  await aligned(page);
-  await page.evaluate(() => document.documentElement.style.setProperty('--nw-font', 'monospace'));
-  await aligned(page);
-  await page.evaluate(() => {
-    window.fixtureRoots.get('nowave-splits').querySelector('.count').textContent = '123456789';
+  const tabs = await page.evaluate(() => {
+    const root = window.fixtureRoots.get('nowave-splits');
+    const look = (el) => {
+      const s = getComputedStyle(el);
+      return { height: el.getBoundingClientRect().height, font: `${s.fontSize}/${s.lineHeight} ${s.fontWeight}`, color: s.color, transition: s.transitionDuration };
+    };
+    return { active: look(root.querySelector('[aria-selected="true"]')), idle: look(root.querySelector('[aria-selected="false"]')), count: look(root.querySelector('.count')) };
   });
-  await aligned(page);
+  expect(tabs.active).toEqual({ height: 28, font: '16px/24px 500', color: 'rgba(5, 3, 17, 0.87)', transition: '0s' });
+  expect(tabs.idle.color).toBe('rgba(5, 3, 17, 0.45)');
+  expect(tabs.count.font).toBe('13px/16px 400');
+  const shown = await page.evaluate(() => {
+    const actions = document.querySelector('#list-view [gh="mtb"]');
+    const group = (inner) => {
+      const el = document.createElement('div');
+      el.className = 'G-Ni';
+      el.innerHTML = inner;
+      actions.append(el);
+      return el;
+    };
+    const groups = [
+      group('<div role="button"><span role="checkbox" aria-checked="false"></span></div>'),
+      group('<div role="button" act="20">Refresh</div>'),
+      group('<div role="button" class="nf">More</div>'),
+      group('<div role="button" act="7">Archive</div>'),
+    ];
+    return groups.map((el) => el.getClientRects().length > 0);
+  });
+  expect(shown).toEqual([false, false, false, true]);
 });
 
 test('keeps a selected overflow tab on screen after narrowing the window', async ({ page }) => {
@@ -286,10 +312,7 @@ test('keeps a selected overflow tab on screen after narrowing the window', async
   await page.evaluate(() => location.hash = '#search/label%3Ateam8');
   await aligned(page);
   await page.setViewportSize({ width: 640, height: 800 });
-  await expect.poll(async () => {
-    const { bar, tab, scroll } = await splitState(page);
-    return scroll > 0 && tab.left >= bar.left - 1 && tab.right <= bar.right + 1;
-  }).toBe(true);
+  await expect.poll(async () => (await splitState(page)).scroll > 0).toBe(true);
   await aligned(page);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
@@ -305,13 +328,10 @@ test('supports roving keyboard focus without losing it when split tabs rerender'
   await aligned(page);
 });
 
-test('respects reduced motion for rows and split changes', async ({ page }) => {
+test('respects reduced motion for rows', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await open(page);
   expect(await style(page.locator('#unread-row'), 'transitionDuration')).toBe('0s');
-  await page.evaluate(() => location.hash = '#search/in%3Ainbox%20category%3Aupdates');
-  await aligned(page);
-  expect(await page.evaluate(() => window.fixtureRoots.get('nowave-splits').querySelector('.pill').getAnimations().length)).toBe(0);
 });
 
 test('mounts outside the list when the native toolbar is absent and follows a replaced view', async ({ page }) => {

@@ -1,4 +1,4 @@
-import { EASE, SKIN_CLASS, SPLIT_PILLS_CSS, reducedMotion } from './skin.js';
+import { SKIN_CLASS, SPLIT_TABS_CSS } from './skin.js';
 
 const CSS = `
 :host {
@@ -49,7 +49,7 @@ export function createSplitBar({ onSelect }) {
   host.id = 'nowave-splits';
   const root = host.attachShadow({ mode: 'closed' });
   const style = document.createElement('style');
-  style.textContent = CSS + SPLIT_PILLS_CSS;
+  style.textContent = CSS + SPLIT_TABS_CSS;
   const bar = document.createElement('div');
   bar.className = 'bar';
   bar.setAttribute('role', 'tablist');
@@ -74,66 +74,47 @@ export function createSplitBar({ onSelect }) {
     onSelect(next);
   });
 
-  const pill = document.createElement('div');
-  pill.className = 'pill';
-
   let rendered = '';
-  let placed = null;
-  let needsPlace = false;
+  let needsReveal = false;
   let frame = null;
   const observer = new ResizeObserver(() => {
     if (frame !== null) return;
     frame = requestAnimationFrame(() => {
       frame = null;
-      if (host.isConnected) place();
+      if (host.isConnected) reveal();
     });
   });
 
   function observe() {
     observer.disconnect();
     observer.observe(bar);
-    for (const tab of bar.querySelectorAll('.tab')) observer.observe(tab);
   }
 
-  // One highlight slides between tabs. Gmail gives every view its own toolbar, so the bar is re-parented on each
-  // switch, which resets CSS transitions; the slide is animated from the last measured place instead.
-  function place() {
-    needsPlace = false;
+  // Scrolls the bar so the active tab is on screen when the tabs overflow.
+  function reveal() {
+    needsReveal = false;
     const tab = bar.querySelector('[aria-selected="true"]');
-    pill.hidden = !tab || !host.classList.contains(SKIN_CLASS);
-    if (tab) {
-      const left = tab.getBoundingClientRect().left - bar.getBoundingClientRect().left + bar.scrollLeft;
-      if (left < bar.scrollLeft) bar.scrollLeft = left;
-      else if (left + tab.offsetWidth > bar.scrollLeft + bar.clientWidth) {
-        bar.scrollLeft = left + tab.offsetWidth - bar.clientWidth;
-      }
+    if (!tab) return;
+    const left = tab.getBoundingClientRect().left - bar.getBoundingClientRect().left + bar.scrollLeft;
+    if (left < bar.scrollLeft) bar.scrollLeft = left;
+    else if (left + tab.offsetWidth > bar.scrollLeft + bar.clientWidth) {
+      bar.scrollLeft = left + tab.offsetWidth - bar.clientWidth;
     }
-    if (pill.hidden) {
-      placed = null;
-      return;
-    }
-    const next = { transform: `translate(${tab.offsetLeft}px, ${tab.offsetTop}px)`, width: `${tab.offsetWidth}px` };
-    if (placed?.transform === next.transform && placed.width === next.width) return;
-    Object.assign(pill.style, next, { height: `${tab.offsetHeight}px` });
-    for (const animation of pill.getAnimations()) animation.cancel();
-    if (placed && !reducedMotion()) pill.animate([placed, next], { duration: 120, easing: EASE });
-    placed = next;
   }
 
   return {
     setSkin(on) {
       if (host.classList.contains(SKIN_CLASS) === on) return;
       host.classList.toggle(SKIN_CLASS, on);
-      needsPlace = true;
+      needsReveal = true;
     },
     render(splits, active, counts = []) {
       const key = JSON.stringify([splits, active, counts]);
       if (key === rendered) return;
       rendered = key;
-      needsPlace = true;
+      needsReveal = true;
       const focused = bar.contains(root.activeElement);
       bar.replaceChildren(
-        pill,
         ...splits.map((split, i) => {
           const tab = document.createElement('button');
           tab.className = 'tab';
@@ -161,16 +142,15 @@ export function createSplitBar({ onSelect }) {
       if (host.parentNode !== anchor.parentNode || host.nextSibling !== anchor) {
         anchor.parentNode.insertBefore(host, anchor);
         observe();
-        needsPlace = true;
+        needsReveal = true;
       }
-      if (needsPlace) place();
+      if (needsReveal) reveal();
     },
     unmount() {
       observer.disconnect();
       if (frame !== null) cancelAnimationFrame(frame);
       frame = null;
-      placed = null;
-      needsPlace = true;
+      needsReveal = true;
       host.remove();
     },
   };
