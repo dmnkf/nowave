@@ -497,6 +497,88 @@ export const SPLIT_TABS_CSS = `
 }
 `;
 
+// Shortwave's palette, inside the palette's shadow root: no dimming, a 640 px card with a label, a 56 px input and
+// 48 px rows with an icon and grey key chips.
+export const PALETTE_CSS = `
+:host(.${SKIN_CLASS}) .backdrop { background: transparent; }
+:host(.${SKIN_CLASS}) .card {
+  width: min(640px, calc(100vw - 32px));
+  max-height: min(363px, 70vh);
+  margin-top: 20vh;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: rgba(0, 0, 0, 0.3) 0 16px 70px;
+  font: 14px/20px var(--nw-font);
+  color: var(--nw-text);
+}
+:host(.${SKIN_CLASS}) .label {
+  display: block;
+  flex: none;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--nw-border);
+  background: var(--nw-chrome);
+  color: var(--nw-secondary);
+  font: 500 11px/16px var(--nw-font);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+:host(.${SKIN_CLASS}) .input {
+  flex: none;
+  box-sizing: border-box;
+  height: 56px;
+  padding: 16px;
+  border: 0;
+  font: 16px/24px var(--nw-font);
+  letter-spacing: 0.2px;
+  color: var(--nw-text);
+}
+:host(.${SKIN_CLASS}) .input::placeholder { color: var(--nw-tertiary); }
+:host(.${SKIN_CLASS}) .input[hidden] + .list { padding-top: 0; }
+:host(.${SKIN_CLASS}) .list { padding: 0; }
+:host(.${SKIN_CLASS}) .list > .section:first-child { display: none; }
+:host(.${SKIN_CLASS}) .section {
+  padding: 12px 16px 4px;
+  color: var(--nw-secondary);
+  font: 500 11px/16px var(--nw-font);
+  letter-spacing: 0.4px;
+}
+:host(.${SKIN_CLASS}) .row {
+  position: relative;
+  gap: 16px;
+  height: 48px;
+  margin: 0;
+  padding: 0 16px;
+  border-radius: 0;
+  justify-content: flex-start;
+}
+:host(.${SKIN_CLASS}) .row[aria-selected="true"] { background: var(--nw-wash); box-shadow: inset 3px 0 var(--nw-accent); }
+:host(.${SKIN_CLASS}) .icon {
+  display: block;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--nw-secondary);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+:host(.${SKIN_CLASS}) .title { flex: 1; min-width: 0; }
+:host(.${SKIN_CLASS}) .keys { gap: 6px; }
+:host(.${SKIN_CLASS}) kbd {
+  min-width: 0;
+  padding: 1px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--nw-border);
+  color: var(--nw-text);
+  font: 400 14px/20px ui-monospace, "SF Mono", Menlo, monospace;
+}
+:host(.${SKIN_CLASS}) .sep { color: var(--nw-tertiary); font-size: 12px; }
+:host(.${SKIN_CLASS}) .note { height: auto; min-height: 48px; padding-block: 14px; }
+:host(.${SKIN_CLASS}) .hint { padding: 14px 16px; color: var(--nw-tertiary); }
+`;
+
 // The split tabs open Gmail's own control row, ahead of select, refresh and more, so tabs and controls share one
 // line. Never inside the thread list itself: Gmail stops archiving when anything is added there.
 export function splitBarAnchor(list) {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         nowave
 // @namespace    https://github.com/dmnkf/nowave
-// @version      1.0.7
+// @version      1.0.8
 // @description  Shortwave-style keys, a command palette and split inbox tabs for Gmail. No AI.
 // @author       Dominik Filliger
 // @license      MIT
@@ -136,7 +136,7 @@ const app = {
     palette.open({ commands: commands(labels()), recent: cheatSheet ? [] : settings.recent });
   },
   openSwitcher() {
-    palette.open({ commands: commands(labels()).filter(isNavigation), recent: [], placeholder: 'Go to...' });
+    palette.open({ commands: commands(labels()).filter(isNavigation), recent: [], placeholder: 'Go to...', heading: 'Go to' });
   },
   compose() {
     sendSequence(['c']);

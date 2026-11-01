@@ -177,6 +177,38 @@ test('native menus, dialogs and search suggestions remain visible and are not cl
   expect(await style(page.locator('#confirm'), 'borderRadius')).toBe('12px');
 });
 
+test('opens Shortwave\'s palette over the undimmed app', async ({ page }) => {
+  await open(page);
+  await page.keyboard.press('Control+k');
+  const palette = await page.evaluate(() => {
+    const root = window.fixtureRoots.get('nowave-palette');
+    const box = (el) => { const { x, y, width, height } = el.getBoundingClientRect(); return { x, y, width, height }; };
+    const row = root.querySelector('.row[aria-selected="true"]');
+    return {
+      backdrop: getComputedStyle(root.querySelector('.backdrop')).backgroundColor,
+      card: box(root.querySelector('.card')).width,
+      label: root.querySelector('.label').textContent,
+      input: box(root.querySelector('.input')).height,
+      placeholder: root.querySelector('.input').placeholder,
+      row: box(row).height,
+      firstRowUnderInput: box(row).y === box(root.querySelector('.input')).y + 56,
+      bar: getComputedStyle(row).boxShadow,
+      icon: Boolean(row.querySelector('svg.icon')),
+    };
+  });
+  expect(palette).toEqual({
+    backdrop: 'rgba(0, 0, 0, 0)',
+    card: 640,
+    label: 'Command palette',
+    input: 56,
+    placeholder: 'Type a command or search...',
+    row: 48,
+    firstRowUnderInput: true,
+    bar: 'rgb(53, 106, 255) 3px 0px 0px 0px inset',
+    icon: true,
+  });
+});
+
 test('uses the light skin palette even with a dark OS preference and restores native styles when disabled', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
   await open(page);

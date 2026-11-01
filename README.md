@@ -96,7 +96,7 @@ To add a split, search for something and run "Save search as split…" from the 
 
 nowave restyles Gmail's light theme to look like Shortwave. Gmail's navigation is hidden and the mail sits on one rounded card between an empty left gutter and a narrow icon column. The header has a folder switcher on the left that names the current view and opens the palette's go-to commands, a centred search field, and a Compose button beside your account. Gmail's settings gear and the Google side panel's apps form the icon column. Rows are flat and full width: a letter avatar from the sender's name, the sender, the subject and snippet after a long dash, grey label chips, then the paperclip, the star when a conversation is starred, and the date. The cursor row is blue with a bar on its left edge, and it moves at once. Checkboxes take the avatar's place on hover or when checked. With Gmail's split pane on, each row keeps two lines.
 
-The look also covers conversation headings and metadata, compose chrome, and Gmail's native menus and dialogs. It does not restyle email bodies, signatures, or the text you are composing. Split tabs take the place of Gmail's list toolbar, scroll when space is tight, and support arrow keys, Home, and End when focused. Gmail's select, refresh and more buttons are hidden; its actions for checked rows appear after the tabs, and the page range stays at the right. Sectioned inboxes get Shortwave's small uppercase section headers. The palette follows the light skin rather than your OS color scheme while the look is enabled.
+The look also covers conversation headings and metadata, compose chrome, and Gmail's native menus and dialogs. It does not restyle email bodies, signatures, or the text you are composing. Split tabs take the place of Gmail's list toolbar, scroll when space is tight, and support arrow keys, Home, and End when focused. Gmail's select, refresh and more buttons are hidden; its actions for checked rows appear after the tabs, and the page range stays at the right. Sectioned inboxes get Shortwave's small uppercase section headers. The palette takes Shortwave's form while the look is enabled: a white card over the undimmed app with a small "Command palette" label, a large input and tall rows with an icon and grey key chips. It follows the light skin rather than your OS color scheme.
 
 Calm mode, which is separate, hides Gemini buttons, the Google One upgrade link, and Gmail's category tabs while the split tabs show.
 
@@ -151,6 +151,7 @@ For an interactive visual preview, run `npm run dev` and open `http://127.0.0.1:
 | `src/palette.js` | Command palette UI |
 | `src/splitbar.js` | Split tabs UI |
 | `src/topbar.js` | The folder switcher and Compose button of the Shortwave look |
+| `src/icons.js` | Line icons for the folder switcher, Compose and the palette |
 | `src/rank.js` | Fuzzy matching and palette groups |
 | `src/queue.js` | The serial queue that triage actions run through |
 

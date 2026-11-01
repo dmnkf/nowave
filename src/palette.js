@@ -1,6 +1,9 @@
+import { icon } from './icons.js';
 import { chordFromEvent, formatChord, isModifierKey } from './keys.js';
 import { rankCommands } from './rank.js';
-import { EASE, SKIN_CLASS, reducedMotion } from './skin.js';
+import { EASE, PALETTE_CSS, SKIN_CLASS, reducedMotion } from './skin.js';
+
+const SECTION_ICONS = { Triage: 'done', Navigate: 'arrow', Splits: 'inbox', Compose: 'compose', View: 'eye', Account: 'user' };
 
 const CSS = `
 :host {
@@ -103,6 +106,7 @@ kbd {
 }
 .sep { color: var(--muted); font-size: 11px; }
 .hint { padding: 12px 18px; color: var(--muted); }
+.label, .icon { display: none; }
 `;
 
 function el(tag, className, text) {
@@ -117,19 +121,20 @@ export function createPalette({ isMac, onRun, onOpenChange }) {
   host.id = 'nowave-palette';
   const root = host.attachShadow({ mode: 'closed' });
   const style = el('style');
-  style.textContent = CSS;
+  style.textContent = CSS + PALETTE_CSS;
   const backdrop = el('div', 'backdrop');
   backdrop.hidden = true;
   const card = el('div', 'card');
   card.setAttribute('role', 'dialog');
   card.setAttribute('aria-label', 'nowave command palette');
   card.tabIndex = -1;
+  const label = el('div', 'label');
   const input = el('input', 'input');
   input.spellcheck = false;
   input.autocomplete = 'off';
   const list = el('div', 'list');
   list.setAttribute('role', 'listbox');
-  card.append(input, list);
+  card.append(label, input, list);
   backdrop.append(card);
   root.append(style, backdrop);
 
@@ -210,7 +215,7 @@ export function createPalette({ isMac, onRun, onOpenChange }) {
         const row = el('div', 'row');
         row.setAttribute('role', 'option');
         const index = rows.length;
-        row.append(el('span', 'title', command.title));
+        row.append(icon(SECTION_ICONS[command.section], 'icon'), el('span', 'title', command.title));
         const chips = command.chips ?? command.keys;
         if (chips) row.append(keyChips(chips));
         row.addEventListener('mousemove', () => index !== selected && select(index));
@@ -223,13 +228,14 @@ export function createPalette({ isMac, onRun, onOpenChange }) {
     select(0);
   }
 
-  function show(nextMode, placeholder, value) {
+  function show(nextMode, placeholder, value, heading = 'Command palette') {
     if (!host.isConnected) document.body.append(host);
     if (!isOpen()) {
       returnFocus = document.activeElement;
       onOpenChange();
     }
     mode = nextMode;
+    label.textContent = heading;
     input.placeholder = placeholder;
     input.value = value;
     input.hidden = mode.kind === 'notice';
@@ -309,8 +315,8 @@ export function createPalette({ isMac, onRun, onOpenChange }) {
     close,
     handleKey,
     letsThrough,
-    open({ commands, recent, placeholder = 'Type a command or search...' }) {
-      show({ kind: 'commands', commands, recent }, placeholder, '');
+    open({ commands, recent, placeholder = 'Type a command or search...', heading }) {
+      show({ kind: 'commands', commands, recent }, placeholder, '', heading);
     },
     prompt({ placeholder, value = '' }) {
       return new Promise((resolve) => show({ kind: 'prompt', resolve }, placeholder, value));
