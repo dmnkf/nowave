@@ -96,19 +96,40 @@ test('keeps selection and stars operable and does not mistake a star for a selec
   const read = page.locator('#read-row');
   expect(await style(read, 'backgroundColor')).toBe('rgba(0, 0, 0, 0)');
   await expect(page.getByRole('checkbox', { name: 'Star Figma' })).toBeVisible();
+  await expect(page.getByRole('checkbox', { name: 'Select Figma' })).toBeHidden();
+  await read.hover();
   await page.getByRole('checkbox', { name: 'Select Figma' }).click();
+  await page.mouse.move(0, 0);
   await expect(read).toHaveCSS('background-color', 'rgb(204, 216, 254)');
+  await expect(page.getByRole('checkbox', { name: 'Select Figma' })).toBeVisible();
   await page.getByRole('checkbox', { name: 'Star Figma' }).click();
   await expect(page.getByRole('checkbox', { name: 'Star Figma' })).toHaveAttribute('aria-checked', 'false');
 });
 
-test('preserves custom label colors and distinguishes unread subjects from read subjects', async ({ page }) => {
+test('draws Shortwave rows: letter avatars, grey label chips, bold unread and a long dash before the snippet', async ({ page }) => {
   await open(page);
-  expect(await style(page.locator('.at'), 'backgroundColor')).toBe('rgb(206, 234, 214)');
-  expect(await style(page.locator('.av'), 'color')).toBe('rgb(19, 115, 51)');
-  expect(await style(page.locator('#unread-row .yW'), 'fontWeight')).toBe('600');
-  expect(await style(page.locator('#read-row .yW'), 'fontWeight')).toBe('400');
-  expect(await style(page.locator('#unread-row .y2'), 'color')).toBe('rgba(5, 3, 17, 0.45)');
+  expect(await style(page.locator('.at'), 'backgroundColor')).toBe('rgba(5, 3, 17, 0.08)');
+  expect(await style(page.locator('.av'), 'color')).toBe('rgba(5, 3, 17, 0.54)');
+  expect(await style(page.locator('#unread-row .bA4 span'), 'fontWeight')).toBe('700');
+  expect(await style(page.locator('#read-row .bA4 span'), 'fontWeight')).toBe('400');
+  expect(await style(page.locator('#read-row .bog'), 'color')).toBe('rgba(5, 0, 26, 0.75)');
+  expect(await style(page.locator('#unread-row .y2'), 'color')).toBe('rgba(5, 0, 26, 0.45)');
+  const avatar = await page.locator('#read-row .bA4 > span').evaluate((el) => {
+    const s = getComputedStyle(el, '::before');
+    return { content: s.content, width: s.width, height: s.height, radius: s.borderRadius };
+  });
+  expect(avatar).toEqual({ content: '"Figma"', width: '24px', height: '24px', radius: '6px' });
+  expect(await page.locator('#read-row .Zt').evaluate((el) => getComputedStyle(el, '::before').content)).toBe('"\u00a0—\u00a0"');
+  const row = await page.locator('#read-row').evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    const list = el.closest('[gh="tl"]').getBoundingClientRect();
+    const sender = el.querySelector('td.yX').getBoundingClientRect();
+    const date = el.querySelector('td.xW').getBoundingClientRect();
+    return { height: r.height, sender: sender.left - list.left, date: list.right - date.right, shadow: getComputedStyle(el).boxShadow };
+  });
+  expect(row).toEqual({ height: 40, sender: 60, date: 24, shadow: 'none' });
+  expect(await style(page.locator('#unread-row'), 'boxShadow')).toBe('rgb(53, 106, 255) 3px 0px 0px 0px inset');
+  expect(await style(page.locator('#unread-row'), 'backgroundColor')).toBe('rgb(204, 216, 254)');
 });
 
 test('styles the thread shell without changing message or inline-reply formatting', async ({ page }) => {
@@ -182,7 +203,7 @@ test('wraps rows only in a vertical reading pane and restores single-line rows a
   expect(await style(page.locator('#unread-row'), 'flexWrap')).toBe('nowrap');
   await page.locator('[gh="tl"]').evaluate(el => el.classList.add('Nm'));
   expect(await style(page.locator('#unread-row'), 'flexWrap')).toBe('wrap');
-  await expect(page.locator('#unread-row')).toHaveCSS('padding-top', '8px');
+  await expect(page.locator('#unread-row')).toHaveCSS('padding-top', '10px');
   const sender = await page.locator('#unread-row .yX').boundingBox();
   const subject = await page.locator('#unread-row .a4W').boundingBox();
   expect(subject.y).toBeGreaterThan(sender.y);
@@ -198,7 +219,7 @@ test('wraps rows only in a vertical reading pane and restores single-line rows a
   expect(await style(page.locator('#unread-row .a4W'), 'flexBasis')).not.toBe('100%');
   await page.locator('.Nu.tf > .Zs').evaluate((narrow) => narrow.replaceWith(...narrow.childNodes));
   await page.locator('[gh="tl"]').evaluate(el => el.classList.remove('Nm'));
-  expect(await style(page.locator('#unread-row'), 'height')).toBe('42px');
+  expect(await style(page.locator('#unread-row'), 'height')).toBe('40px');
 });
 
 test('anchors the advanced search panel to the compact search field', async ({ page }) => {

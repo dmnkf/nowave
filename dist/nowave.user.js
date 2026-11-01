@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         nowave
 // @namespace    https://github.com/dmnkf/nowave
-// @version      1.0.6
+// @version      1.0.7
 // @description  Shortwave-style keys, a command palette and split inbox tabs for Gmail. No AI.
 // @author       Dominik Filliger
 // @license      MIT
@@ -910,7 +910,7 @@ ${S} [role="complementary"] [role="separator"] { width: 28px; margin: 0 10px 8px
 
 ${S} ${SELECTORS2.toolbar} {
   box-sizing: border-box;
-  height: 48px;
+  height: auto !important;
   min-height: 48px;
   padding: 0 16px 0 12px !important;
   background: transparent;
@@ -922,18 +922,20 @@ ${S} ${SELECTORS2.toolbarActions} .G-Ni:is(:has(> [role="button"] [role="checkbo
 }
 ${S} ${SELECTORS2.toolbar} .Cr { opacity: 0.6; }
 ${S} ${SELECTORS2.toolbar} .Cr :is(.Dj, .Dj *) { font: 12px/16px var(--nw-font) !important; color: var(--nw-tertiary); }
-${S} ${SELECTORS2.toolbar} [role="toolbar"] { font-family: var(--nw-font); }
+${S} ${SELECTORS2.toolbar} > [role="toolbar"] { margin: 8px 0 0 4px; padding: 0; font-family: var(--nw-font); }
+${S} ${SELECTORS2.toolbar} > [role="toolbar"] ~ .aqK { margin-top: 0; }
 
-${S} tr.zA > td.PF { display: none !important; }
-${S} tr.zA > :is(td.oZ-x3, td.apU, td.WA) { opacity: 0.6; }
-${S} tr.zA:is(:hover, :focus-within, .x7) > :is(td.oZ-x3, td.apU, td.WA),
-${S} tr.zA > :is(td.oZ-x3, td.apU, td.WA):has([aria-checked="true"]) { opacity: 1; }
 ${S} tr.zA {
-  margin-inline: 8px;
-  border-radius: 8px;
-  background: transparent !important;
+  position: relative;
+  box-sizing: border-box;
+  height: 40px !important;
+  margin: 0 !important;
+  padding: 0 24px 0 60px !important;
+  align-items: center;
+  border-radius: 0;
+  background: var(--nw-card) !important;
   box-shadow: none !important;
-  font: 14px var(--nw-font);
+  font: 14px/20px var(--nw-font);
   transition: opacity ${LEAVE_MS}ms var(--nw-ease),
     transform ${LEAVE_MS}ms var(--nw-ease);
 }
@@ -941,14 +943,96 @@ ${S} tr.zA[${LEAVING_ATTR}] { opacity: 0; transform: translateX(12px); }
 @media (prefers-reduced-motion: reduce) {
   ${S} tr.zA[${LEAVING_ATTR}] { transform: none; }
 }
+${S} tr.zA:hover { background: var(--nw-hover) !important; }
+${S} tr.zA:has(td.oZ-x3 [aria-checked="true"]) { background: var(--nw-selected) !important; }
+${S} tr.zA.btb {
+  background: var(--nw-selected) !important;
+  box-shadow: inset 3px 0 var(--nw-accent) !important;
+}
 ${S} tr.zA > td:not(.bq4),
 ${S} tr.zA > td:not(.bq4) * { font-family: var(--nw-font) !important; }
-${S} tr.zA > td.yX { padding-left: 12px; }
-${S} tr.zA:hover { background: var(--nw-hover) !important; }
-${S} tr.zA:has(td.oZ-x3 [role="checkbox"][aria-checked="true"]) { background: var(--nw-selected) !important; }
-${S} tr.zA.btb {
-  background: var(--nw-wash) !important;
-  box-shadow: inset 3px 0 var(--nw-accent) !important;
+${S} tr.zA > :is(td.PF, td.WA) { display: none !important; }
+${S} tr.zA > td { padding: 0 !important; }
+${S} tr.zA > td.yX::before,
+${S} tr.zA > td.yX .bA4 > span[name]:first-child::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 24px;
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  padding-left: 7px;
+  overflow: hidden;
+  border: 1px solid var(--nw-border);
+  border-radius: 6px;
+  background: rgb(240, 241, 245);
+  color: var(--nw-secondary);
+  font: 600 12px/22px ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 24px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+${S} tr.zA > td.yX .bA4 > span[name]:first-child::before { content: attr(name); }
+${S} tr.zA > td.oZ-x3 > :not([role="checkbox"]) { display: none; }
+${S} tr.zA > td.oZ-x3 {
+  position: absolute !important;
+  top: 8px;
+  left: 24px;
+  z-index: 1;
+  display: flex;
+  width: 24px !important;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+}
+${S} tr.zA:is(:hover, :has(td.oZ-x3 [aria-checked="true"])) > td.oZ-x3 { visibility: visible; }
+${S} tr.zA:is(:hover, :has(td.oZ-x3 [aria-checked="true"])) > td.yX::before,
+${S} tr.zA:is(:hover, :has(td.oZ-x3 [aria-checked="true"])) > td.yX .bA4 > span[name]:first-child::before {
+  visibility: hidden;
+}
+${S} tr.zA > td.yX { flex: 0 0 249px !important; width: 249px !important; margin: 0 4px 0 0 !important; }
+${S} tr.zA > td.a4W { flex: 1 1 0 !important; min-width: 0; }
+${S} tr.zA > td.yf { order: 1; width: auto !important; flex: none !important; margin-left: 8px; opacity: 0.55; }
+${S} tr.zA > td.apU { order: 2; width: 20px !important; flex: none !important; margin-left: 8px; }
+${S} tr.zA:not(:hover) > td.apU:has(.aXw) { display: none; }
+${S} tr.zA > :is(td.byZ, td.xW, td.bq4) { order: 3; }
+${S} tr.zA > td.xW { flex: none !important; width: auto !important; min-width: 56px; margin-left: 16px; text-align: right; }
+${S} tr.zA td.xW span {
+  font: 500 11px/16px var(--nw-font) !important;
+  color: var(--nw-snippet) !important;
+  font-variant-numeric: tabular-nums;
+}
+${S} tr.zA.zE td.xW span { font-weight: 700 !important; color: var(--nw-strong) !important; }
+${S} tr.zA > td.bq4 { opacity: 0.7; }
+${S} tr.zA td.yX :is(.yW, .bA4) span { font-weight: 400 !important; color: var(--nw-text) !important; }
+${S} tr.zA.zE td.yX :is(.yW, .bA4) span { font-weight: 700 !important; color: var(--nw-strong) !important; }
+${S} tr.zA td.yX .bx0 { margin-left: 4px; font: 400 12px/20px var(--nw-font) !important; color: var(--nw-tertiary) !important; }
+${S} tr.zA .bog,
+${S} tr.zA .bog * { font-weight: 400 !important; color: var(--nw-subject) !important; }
+${S} tr.zA.zE .bog,
+${S} tr.zA.zE .bog * { font-weight: 700 !important; color: var(--nw-strong) !important; }
+${S} tr.zA .y2,
+${S} tr.zA .y2 * { font-weight: 400 !important; color: var(--nw-snippet) !important; }
+${S} tr.zA :is(.xS, .xT) { height: 20px; line-height: 20px; }
+${S} tr.zA .xT { align-items: baseline; }
+${S} tr.zA .xT > * { line-height: 20px; }
+${S} [gh="tl"] * { scrollbar-width: thin; scrollbar-color: var(--nw-border) transparent; }
+${S} tr.zA .y2 .Zt { font-size: 0; }
+${S} tr.zA .y2 .Zt::before { content: "\\00a0\\2014\\00a0"; font-size: 14px; }
+${S} tr.zA .brd { display: none; }
+${S} tr.zA .at {
+  margin: 0 4px 0 0;
+  border: 0 !important;
+  border-radius: 4px;
+  background: var(--nw-fill) !important;
+}
+${S} tr.zA .at .au { border: 0 !important; background: transparent !important; }
+${S} tr.zA .at .av {
+  padding: 2px 8px;
+  font: 400 12px/16px var(--nw-font) !important;
+  color: var(--nw-secondary) !important;
 }
 ${S} ${SELECTORS2.subject} { font: 600 22px/1.3 var(--nw-font) !important; color: var(--nw-text); }
 ${S} .Wg {
@@ -981,17 +1065,6 @@ ${S} h3.Wr .qh {
   color: var(--nw-secondary) !important;
 }
 ${S} h3.Wr img.qi { position: absolute; top: -1px; right: 17px; margin: 0; opacity: 0.45; transform: scale(0.6); }
-${S} tr.zA :is(td.yX, .bog),
-${S} tr.zA :is(td.yX, .bog) * { font-weight: 400 !important; color: var(--nw-text) !important; }
-${S} tr.zA.yO .bog,
-${S} tr.zA.yO .bog * { color: var(--nw-secondary) !important; }
-${S} tr.zA.zE :is(td.yX, .bog, td.xW),
-${S} tr.zA.zE :is(td.yX, .bog, td.xW) * { font-weight: 600 !important; color: var(--nw-text) !important; }
-${S} tr.zA .y2,
-${S} tr.zA .y2 * { color: var(--nw-tertiary) !important; }
-${S} tr.zA td.xW * { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--nw-secondary); }
-${S} tr.zA .at { border-radius: 4px; }
-${S} tr.zA .at .av { font-size: 11px; font-weight: 500; }
 
 ${S} .adn .gE { font-family: var(--nw-font); color: var(--nw-secondary); }
 ${S} .adn .gD { font-family: var(--nw-font); color: var(--nw-text); }
@@ -1042,10 +1115,15 @@ ${SPLIT} > .Nu.S3 .apb {
   color: var(--nw-tertiary);
 }
 ${SPLIT} > .Nu.S3 .a98 { padding: 12px 28px 32px 12px !important; }
-${SPLIT_ROW} { flex-wrap: wrap; height: auto !important; padding-block: 8px !important; row-gap: 2px; }
-${SPLIT_ROW} > td.yX { margin-right: auto; }
-${SPLIT_ROW} > :is(td.yf, td.xW, td.bq4) { order: 2; }
-${SPLIT_ROW} > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: border-box; padding-left: 12px; }
+${SPLIT_ROW} {
+  flex-wrap: wrap;
+  height: auto !important;
+  padding-block: 10px !important;
+  align-items: flex-start;
+  row-gap: 2px;
+}
+${SPLIT_ROW} > td.yX { flex: 0 1 auto !important; width: auto !important; min-width: 0; margin-right: auto !important; }
+${SPLIT_ROW} > td.a4W { order: 4; flex: 0 0 100% !important; box-sizing: border-box; }
 @media (max-width: 900px) {
   ${S} .bkK { margin-right: 4px; }
   ${S} #nowave-splits { padding-inline: 8px; }

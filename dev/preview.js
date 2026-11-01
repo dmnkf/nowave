@@ -149,7 +149,14 @@ for (const [title, starred] of [['Starred', true], ['Everything else', false]]) 
     row.removeAttribute('id');
     row.className = `zA ${unread ? 'zE' : 'yO'}${from === 'Maya Chen' ? ' btb' : ''}`;
     row.dataset.label = label;
-    row.querySelector('.yW').textContent = from;
+    const sender = document.createElement('span');
+    sender.className = unread ? 'zF' : 'yP';
+    sender.setAttribute('name', from);
+    sender.textContent = from;
+    const senders = document.createElement('span');
+    senders.className = 'bA4';
+    senders.append(sender);
+    row.querySelector('.yW').replaceChildren(senders);
     row.querySelector('.bog').textContent = subject;
     row.querySelector('.y2').textContent = `— ${snippet}`;
     row.querySelector('.xW').textContent = date;
