@@ -180,8 +180,9 @@ test('native menus, dialogs and search suggestions remain visible and are not cl
 test('opens Shortwave\'s palette over the undimmed app', async ({ page }) => {
   await open(page);
   await page.keyboard.press('Control+k');
-  const palette = await page.evaluate(() => {
+  const palette = await page.evaluate(async () => {
     const root = window.fixtureRoots.get('nowave-palette');
+    await Promise.all(root.querySelector('.card').getAnimations().map((animation) => animation.finished));
     const box = (el) => { const { x, y, width, height } = el.getBoundingClientRect(); return { x, y, width, height }; };
     const row = root.querySelector('.row[aria-selected="true"]');
     return {
