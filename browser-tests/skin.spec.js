@@ -154,8 +154,45 @@ test('wraps rows only in a vertical reading pane and restores single-line rows a
   expect(subject.y).toBeGreaterThan(sender.y);
   await expect(page.locator('.apb')).toBeVisible();
   await expect(page.locator('.apb')).toContainText('No conversations selected');
+  await page.locator('.Nu.tf > .Cp').evaluate((cp) => {
+    const narrow = document.createElement('div');
+    narrow.className = 'Zs';
+    cp.before(narrow);
+    narrow.append(cp);
+  });
+  expect(await style(page.locator('#unread-row .a4W'), 'order')).toBe('0');
+  expect(await style(page.locator('#unread-row .a4W'), 'flexBasis')).not.toBe('100%');
+  await page.locator('.Nu.tf > .Zs').evaluate((narrow) => narrow.replaceWith(...narrow.childNodes));
   await page.locator('[gh="tl"]').evaluate(el => el.classList.remove('Nm'));
   expect(await style(page.locator('#unread-row'), 'height')).toBe('42px');
+});
+
+test('anchors the advanced search panel to the compact search field', async ({ page }) => {
+  await open(page);
+  const place = () => page.evaluate(() => {
+    const form = document.querySelector('header#gb form[role="search"]').getBoundingClientRect();
+    const panel = document.querySelector('.ZF-Av').getBoundingClientRect();
+    return { formLeft: form.left, formWidth: form.width, panelLeft: panel.left, panelWidth: panel.width };
+  });
+  await page.evaluate(() => {
+    const gmail = document.createElement('style');
+    gmail.textContent = '.ZF-Av { position: absolute; left: 256px; right: 24px; } .SK.ZF-zT { width: 100%; max-width: 720px; }';
+    document.head.append(gmail);
+    const popup = document.createElement('div');
+    popup.className = 'ZF-Av';
+    popup.style.top = '44px';
+    const panel = document.createElement('div');
+    panel.className = 'SK ZF-zT';
+    panel.textContent = 'From';
+    popup.append(panel);
+    document.body.append(popup);
+  });
+  const skinned = await place();
+  expect(skinned.panelLeft).toBeCloseTo(skinned.formLeft, 0);
+  expect(skinned.panelWidth).toBeCloseTo(skinned.formWidth, 0);
+  await paletteCommand(page, 'Toggle Shortwave look');
+  await expect(page.locator('html')).not.toHaveClass(/nowave-skin/);
+  expect((await place()).panelLeft).toBe(256);
 });
 
 test('keeps a half-pixel-wide reading pane free of a horizontal scrollbar while wide mail still scrolls', async ({ page }) => {

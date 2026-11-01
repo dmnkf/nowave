@@ -27,6 +27,8 @@ const HOVER_EXPAND_CLASSES = ['bym', 'aaj', 'bjB'];
 
 // The thread list while Gmail's vertical split pane is on: rows, a .Nt divider and the .Nu.S3 pane.
 const SPLIT = `${S} [gh="tl"].Nm`;
+// Two-line rows in the split view. A narrow list (.Zs) already has Gmail's own two-line rows.
+const SPLIT_ROW = `${SPLIT} tr.zA:not(.Zs tr)`;
 
 // An attribute, not a class: Gmail rewrites a row's className when its checked state changes.
 const LEAVING_ATTR = 'data-nowave-leaving';
@@ -68,6 +70,7 @@ ${S} header#gb a[href$="#inbox"] {
   display: none !important;
 }
 ${S} header#gb form[role="search"] {
+  anchor-name: --nw-search;
   max-width: 560px;
   height: auto;
   min-height: 36px;
@@ -84,6 +87,13 @@ ${S} header#gb form[role="search"]:focus-within {
   box-shadow: 0 0 0 2px var(--nw-accent);
 }
 ${S} header#gb a[href*="accounts.google.com/SignOutOptions"] { transform: scale(0.8); }
+${S} .ZF-Av {
+  right: auto;
+  left: 80px;
+  left: anchor(--nw-search left);
+  width: 560px;
+  width: anchor-size(--nw-search width);
+}
 
 ${S} [role="navigation"].aeN {
   background: var(--nw-chrome);
@@ -233,10 +243,10 @@ ${SPLIT} > .Nu.S3 .apb {
   color: var(--nw-tertiary);
 }
 ${SPLIT} > .Nu.S3 .a98 { padding: 12px 28px 32px 12px !important; }
-${SPLIT} tr.zA { flex-wrap: wrap; height: auto !important; padding-block: 8px !important; row-gap: 2px; }
-${SPLIT} tr.zA > td.yX { margin-right: auto; }
-${SPLIT} tr.zA > :is(td.yf, td.xW, td.bq4) { order: 2; }
-${SPLIT} tr.zA > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: border-box; padding-left: 12px; }
+${SPLIT_ROW} { flex-wrap: wrap; height: auto !important; padding-block: 8px !important; row-gap: 2px; }
+${SPLIT_ROW} > td.yX { margin-right: auto; }
+${SPLIT_ROW} > :is(td.yf, td.xW, td.bq4) { order: 2; }
+${SPLIT_ROW} > td.a4W { order: 3; flex: 0 0 100% !important; box-sizing: border-box; padding-left: 12px; }
 @media (max-width: 900px) {
   ${S} .bkK { margin-right: 4px; }
   ${S} #nowave-splits { padding-inline: 8px; }
