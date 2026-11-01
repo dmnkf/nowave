@@ -158,6 +158,41 @@ test('wraps rows only in a vertical reading pane and restores single-line rows a
   expect(await style(page.locator('#unread-row'), 'height')).toBe('42px');
 });
 
+test('keeps a half-pixel-wide reading pane free of a horizontal scrollbar while wide mail still scrolls', async ({ page }) => {
+  await open(page);
+  const result = await page.evaluate(() => {
+    const list = document.querySelector('[gh="tl"]');
+    list.classList.add('Nm');
+    const pane = list.querySelector('.Nu.S3');
+    pane.style.cssText = 'flex: none; width: 400.5px; height: 300px; overflow: auto;';
+    const aia = pane.querySelector('.aia');
+    aia.style.display = 'flex';
+    const conversation = document.createElement('div');
+    const ao8 = document.createElement('div');
+    ao8.className = 'nH ao8';
+    const body = document.createElement('div');
+    body.className = 'a3s';
+    body.style.overflowX = 'auto';
+    const wide = document.createElement('div');
+    wide.style.width = '900px';
+    wide.textContent = 'A newsletter wider than the pane';
+    body.append(wide);
+    ao8.append(body);
+    conversation.append(ao8);
+    aia.replaceChildren(conversation);
+    // Gmail sets this width from the pane's rounded clientWidth.
+    ao8.style.width = `${Math.ceil(pane.getBoundingClientRect().width - (pane.offsetWidth - pane.clientWidth))}px`;
+    return {
+      paneScrollbar: pane.offsetHeight - pane.clientHeight,
+      overhang: ao8.getBoundingClientRect().right - (pane.getBoundingClientRect().right - (pane.offsetWidth - pane.clientWidth)),
+      bodyScrolls: body.scrollWidth > body.clientWidth,
+    };
+  });
+  expect(result.paneScrollbar).toBe(0);
+  expect(result.overhang).toBeLessThanOrEqual(0);
+  expect(result.bodyScrolls).toBe(true);
+});
+
 test('hides the highlight on lists which do not match a split and restores it on return', async ({ page }) => {
   await open(page);
   await aligned(page);

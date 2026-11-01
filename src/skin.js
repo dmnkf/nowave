@@ -224,6 +224,8 @@ ${SPLIT} > .Nt {
 }
 ${SPLIT} > .Nu.S3 :is(.apc, .apO) { display: none !important; }
 ${SPLIT} > .Nu.S3 .aia > :has(.apb) { flex: 1; }
+${SPLIT} > .Nu.S3 .aia > * { min-width: 0; }
+${SPLIT} > .Nu.S3 .ao8 { max-width: 100%; }
 ${SPLIT} > .Nu.S3 .apb {
   padding: clamp(24px, 20vh, 180px) 16px 24px;
   text-align: center;
