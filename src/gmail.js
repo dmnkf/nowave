@@ -1,7 +1,7 @@
 // Everything nowave knows about Gmail's DOM and key handling lives here.
 // docs/gmail-contract.md lists each selector with its source.
 import { formatSequence, syntheticKeyEvents } from './keys.js';
-import { closePaneHash, parseRoute, labelName } from './route.js';
+import { parseRoute, labelName } from './route.js';
 
 const SELECTORS = {
   threadList: '[gh="tl"]',
@@ -213,12 +213,6 @@ export function findThreadList() {
 // the pane.
 export function paneOpen() {
   return parseRoute(location.hash).view === 'list' && firstShown(SELECTORS.subject) !== null;
-}
-
-// replace: Gmail's rewrite back to the list already adds a history entry, and an assignment would add a second.
-export function closePane() {
-  const hash = closePaneHash(location.hash, Date.now());
-  if (hash && paneOpen()) location.replace(hash);
 }
 
 // Gmail's toolbar button ignores a scripted click() and acts on the mouse events around it.

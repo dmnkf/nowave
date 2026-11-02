@@ -236,17 +236,23 @@ test('keeps settings and user-authored signatures untouched', async ({ page }) =
   await expect(page.locator('#nowave-splits')).not.toBeAttached();
 });
 
-test('wraps rows beside a vertical reading pane and in a narrow list, and restores single-line rows afterwards', async ({ page }) => {
+test('keeps the list full width beside an empty reading pane, narrows it to a 550 px column for an open conversation, and wraps rows in a narrow list', async ({ page }) => {
   await open(page);
+  const width = (selector) => page.locator(selector).evaluate((el) => el.getBoundingClientRect().width);
   expect(await style(page.locator('#unread-row'), 'flexWrap')).toBe('nowrap');
   await page.locator('[gh="tl"]').evaluate(el => el.classList.add('Nm'));
-  expect(await style(page.locator('#unread-row'), 'flexWrap')).toBe('wrap');
-  await expect(page.locator('#unread-row')).toHaveCSS('padding-top', '10px');
-  const sender = await page.locator('#unread-row .yX').boundingBox();
-  const subject = await page.locator('#unread-row .a4W').boundingBox();
-  expect(subject.y).toBeGreaterThan(sender.y);
-  await expect(page.locator('.apb')).toBeVisible();
-  await expect(page.locator('.apb')).toContainText('No conversations selected');
+  expect(await width('.Nu.S3')).toBe(0);
+  expect(await width('.Nu.tf')).toBe(await width('[gh="tl"]'));
+  expect(await style(page.locator('#unread-row'), 'flexWrap')).toBe('nowrap');
+  await page.locator('.Nu.S3 .aia').evaluate((aia) => {
+    const subject = document.createElement('h2');
+    subject.className = 'hP';
+    subject.textContent = 'Design review notes';
+    aia.replaceChildren(subject);
+  });
+  expect(await width('.Nu.tf')).toBe(550);
+  expect(await style(page.locator('#unread-row'), 'height')).toBe('40px');
+  expect(await style(page.locator('.Nu.S3 h2.hP'), 'fontSize')).toBe('16px');
   await page.locator('.Nu.tf > .Cp').evaluate((cp) => {
     const narrow = document.createElement('div');
     narrow.className = 'Zs';

@@ -1,7 +1,6 @@
 import {
   GMAIL_KEYS,
   assistRealKey,
-  closePane,
   realKeyNotice,
   sendSequence,
   toggleRead,
@@ -134,7 +133,7 @@ export function buildCommands(app, { splits, labels, gmail = GMAIL_KEYS, isMac =
       section: 'Navigate',
       keys: [['escape'], ['h']],
       contexts: ['pane'],
-      run: closePane,
+      run: () => sendSequence(gmail.back[0]),
     },
     gmailKey('search', 'Search mail', 'Navigate', [['/']]),
     gmailKey('go-inbox', 'Go to Inbox', 'Navigate', [['g', 'i']]),

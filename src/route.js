@@ -97,13 +97,3 @@ export function viewOf(hash, splits) {
   }
   return VIEWS[root] ?? VIEWS.inbox;
 }
-
-// Gmail empties its reading pane when the hash changes to page 1 of the list, then rewrites the hash to the list's
-// own. It ignores a hash it has already routed in this page load, so each close needs a new nonce. Past page 1, or
-// with a ?compose in the hash, there is no plain list hash to go back to.
-export function closePaneHash(hash, nonce) {
-  if (parseRoute(hash).view !== 'list' || hash.includes('?')) return null;
-  const path = hash.replace(/^#/, '') || 'inbox';
-  const parts = path.split('/');
-  return parts.length === LIST_ROOT_ARITY[parts[0]] ? `#${path}/p1?nw=${nonce}` : null;
-}

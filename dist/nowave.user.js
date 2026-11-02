@@ -208,12 +208,6 @@
     }
     return VIEWS[root] ?? VIEWS.inbox;
   }
-  function closePaneHash(hash, nonce) {
-    if (parseRoute(hash).view !== "list" || hash.includes("?")) return null;
-    const path = hash.replace(/^#/, "") || "inbox";
-    const parts = path.split("/");
-    return parts.length === LIST_ROOT_ARITY[parts[0]] ? `#${path}/p1?nw=${nonce}` : null;
-  }
 
   // src/gmail.js
   var SELECTORS = {
@@ -368,10 +362,6 @@ html.${CALM_CLASS}.${SPLITS_MOUNTED_CLASS} [role="main"] [role="tablist"] {
   }
   function paneOpen() {
     return parseRoute(location.hash).view === "list" && firstShown(SELECTORS.subject) !== null;
-  }
-  function closePane() {
-    const hash = closePaneHash(location.hash, Date.now());
-    if (hash && paneOpen()) location.replace(hash);
   }
   function toggleSplitPane() {
     const button2 = firstShown(SELECTORS.splitToggle);
@@ -608,7 +598,7 @@ html.${CALM_CLASS}.${SPLITS_MOUNTED_CLASS} [role="main"] [role="tablist"] {
         section: "Navigate",
         keys: [["escape"], ["h"]],
         contexts: ["pane"],
-        run: closePane
+        run: () => sendSequence(gmail.back[0])
       },
       gmailKey("search", "Search mail", "Navigate", [["/"]]),
       gmailKey("go-inbox", "Go to Inbox", "Navigate", [["g", "i"]]),
@@ -808,7 +798,9 @@ html.${CALM_CLASS}.${SPLITS_MOUNTED_CLASS} [role="main"] [role="tablist"] {
   };
   var HEADER_SIDE = 48;
   var SPLIT = `${S} [gh="tl"].Nm`;
-  var SPLIT_ROW = `${S} :is([gh="tl"].Nm, .Zs) tr.zA`;
+  var SPLIT_EMPTY = `${SPLIT}:has(> .Nu.S3 .apb)`;
+  var SPLIT_OPEN = `${SPLIT}:not(:has(> .Nu.S3 .apb))`;
+  var NARROW_ROW = `${S} .Zs tr.zA`;
   var LEAVING_ATTR = "data-nowave-leaving";
   var LEAVE_MS = 140;
   var EASE = "cubic-bezier(0.2, 0.8, 0.2, 1)";
@@ -1135,7 +1127,14 @@ ${S} .Wg {
   border-bottom: 1px solid var(--nw-rule);
 }
 ${S} .Wg > .d9yJeb { flex: 1; margin: 0 !important; }
-${S} .Wg .chp5lb { display: none; }
+${S} .Wg .chp5lb > :not(.Wm) { display: none; }
+${S} .Wg .chp5lb .Wm { margin-right: 20px; cursor: pointer; }
+${S} .Wg .chp5lb .Wm * {
+  font: 500 11px/16px var(--nw-font) !important;
+  color: var(--nw-tertiary) !important;
+  font-variant-numeric: tabular-nums;
+}
+${S} .Wg .chp5lb .Wm:hover * { color: var(--nw-text) !important; }
 ${S} h3.Wr {
   position: static;
   height: 28px !important;
@@ -1192,6 +1191,7 @@ ${S} .Kj-JD {
   font-family: var(--nw-font);
 }
 ${S} .J-M .J-N { border-radius: 6px; color: var(--nw-text); }
+${S} .J-M .J-N :is(.J-N-Jz, .J-N-Jo) { color: inherit; }
 ${S} .J-M .J-N:is(:hover, .J-N-JT) { background: var(--nw-wash); }
 ${S} :is([gh="cm"], [gh="tm"] [role="button"], .TO a):focus-visible {
   outline: 2px solid var(--nw-accent);
@@ -1202,30 +1202,34 @@ ${SPLIT} > .Nt {
   border-color: transparent !important;
   background: linear-gradient(var(--nw-hairline), var(--nw-hairline)) center / 1px 100% no-repeat !important;
 }
-${SPLIT} > .Nu.S3 :is(.apc, .apO) { display: none !important; }
-${SPLIT} > .Nu.S3 .aia > :has(.apb) { flex: 1; }
+${SPLIT_EMPTY} > :is(.Nt, .Nu.S3) {
+  flex: 0 0 0 !important;
+  width: 0 !important;
+  min-width: 0;
+  border: 0 !important;
+  overflow: hidden;
+  visibility: hidden;
+}
+${SPLIT_OPEN} > .Nu.tf { flex: 0 0 550px !important; min-width: 0; }
+${SPLIT_OPEN} > .Nt { position: relative; z-index: 1; margin-right: -5px; }
+${SPLIT_OPEN} tr.zA > td.yX { flex-basis: 120px !important; width: 120px !important; }
 ${SPLIT} > .Nu.S3 .aia > * { min-width: 0; }
 ${SPLIT} > .Nu.S3 .ao8 { max-width: 100%; }
-${SPLIT} > .Nu.S3 .apb {
-  padding: clamp(24px, 20vh, 180px) 16px 24px;
-  text-align: center;
-  font: 14px var(--nw-font);
-  color: var(--nw-tertiary);
-}
+${SPLIT} > .Nu.S3 ${SELECTORS2.subject} { font-size: 16px !important; line-height: 24px; }
 ${SPLIT} > .Nu.S3 .a98 { padding: 12px 28px 32px 12px !important; }
-${SPLIT_ROW} {
+${NARROW_ROW} {
   flex-wrap: wrap;
   height: auto !important;
   padding-block: 10px !important;
   align-items: flex-start;
   row-gap: 2px;
 }
-${SPLIT_ROW} > td.yX { flex: 0 1 auto !important; width: auto !important; min-width: 0; margin-right: auto !important; }
-${SPLIT_ROW} > :is(td.apU, td.yf, td.xW) { height: 20px !important; align-items: center; }
-${SPLIT_ROW} .xT { flex-wrap: nowrap !important; }
-${SPLIT_ROW} .xT > .y6 { flex: 0 1 auto !important; width: auto !important; min-width: 0; }
-${SPLIT_ROW} .xT > .y2 { display: block; flex: 1 1 0 !important; width: auto !important; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-${SPLIT_ROW} > td.a4W {
+${NARROW_ROW} > td.yX { flex: 0 1 auto !important; width: auto !important; min-width: 0; margin-right: auto !important; }
+${NARROW_ROW} > :is(td.apU, td.yf, td.xW) { height: 20px !important; align-items: center; }
+${NARROW_ROW} .xT { flex-wrap: nowrap !important; }
+${NARROW_ROW} .xT > .y6 { flex: 0 1 auto !important; width: auto !important; min-width: 0; }
+${NARROW_ROW} .xT > .y2 { display: block; flex: 1 1 0 !important; width: auto !important; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+${NARROW_ROW} > td.a4W {
   order: 4;
   flex: 0 0 100% !important;
   box-sizing: border-box;

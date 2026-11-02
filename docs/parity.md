@@ -9,7 +9,8 @@ The target: in Gmail with nowave, email navigation and the overall UI should be 
 | Keyboard shortcuts | On | nowave drives Gmail through its shortcuts | On |
 | Custom keyboard shortcuts | On, Archive on `d` and `e` | Gmail archives only on a real key press of its own archive key | On |
 | Inbox type | Starred first | Shortwave's pinned Starred section | On |
-| Reading pane | Vertical split, on | Shortwave opens a thread in a side panel | Was turned off by mistake on 2026-11-01. Must be back on |
+| Inbox sections | Starred and Everything else show up to 50 items | Gmail's most. Shortwave lists everything; past 50, the section's range in its header opens the whole section | Set on 2026-11-02 (Everything else was 10) |
+| Reading pane | Vertical split, on | Shortwave opens a thread in a side panel | Turned back on on 2026-11-02 |
 | Auto-advance | To be decided in journey 6 | Done moves focus to the next thread | Unchanged |
 
 ## Journeys
@@ -21,6 +22,7 @@ Each journey lists what Shortwave does (measured live in Shortwave's Sent view a
 - Shortwave: full-width list (card 1292 px), single-line 40 px rows, no panel.
 - nowave: split pane on, but while no conversation is open, the empty pane is hidden and the list takes the full card width with single-line rows. Already matched within 2 px for the list itself (1.0.5 to 1.0.10).
 - Check: a screenshot pair and metrics for the card, rows, sections and tabs.
+- Done on 2026-11-02: with no conversation open, the pane and its divider collapse to zero width, and the list is 1292 px. The pane must stay in the layout: hidden with `display: none`, Gmail sizes it `height: 0px` and later opens conversations into an invisible pane.
 
 ### 2. Move in the list
 
@@ -33,6 +35,7 @@ Each journey lists what Shortwave does (measured live in Shortwave's Sent view a
 - Shortwave: `Enter` or `→`. The list shrinks to a 550 px column of compact single-line rows (sender truncated, subject, chips, date). The thread opens in a 742 px panel on the right: a toolbar (collapse, expand, share, more, label, star, todo, snooze, trash, done), the subject at about 16 px semibold, the participants line, message cards, collapsed messages as "…" chips, and a "Reply all" bar pinned at the bottom.
 - nowave: `Enter`, `l`, `o` and `→` open the cursor conversation in Gmail's reading pane. The pane is shown at Shortwave's proportions. The list switches to compact single-line rows, not the current two-line rows. Gmail's conversation view is restyled to Shortwave's panel.
 - Check: a screenshot pair and metrics for the column widths, row height, panel toolbar, subject, message cards and reply bar.
+- Done on 2026-11-02 on real Gmail: the list is 550 px of single-line 40 px rows with a 120 px sender, and the conversation pane is 742 px (Gmail's 5 px divider overlaps the list). The subject is 16 px. Still to do: Shortwave's in-panel toolbar (Gmail's actions stay in the row above the list), message cards and the pinned "Reply all" bar.
 
 ### 4. Move between threads with the panel open
 
@@ -45,6 +48,7 @@ Each journey lists what Shortwave does (measured live in Shortwave's Sent view a
 - Shortwave: `Esc` or `←` closes the panel. The list returns to full width, and the cursor stays on the same thread.
 - nowave: a real close is required, so that `j` / `k` afterwards move without opening. The `#…/p1?nw=` trick stopped working (Gmail keeps the open conversation per list). First task: find a mechanism that empties Gmail's pane, for example Gmail's `u`, toggling the split mode, or re-routing the list. Fallback: hide the pane while nowave remembers it is closed, and make `j` / `k` move the cursor without opening while it is closed.
 - Check: after closing, `j` moves without opening and the list is full width.
+- Done on 2026-11-02: Gmail's own `u` (back to list) empties the pane and keeps the cursor row, so `Esc` and `h` in the pane send it. Checked on real Gmail: the pane closes, the list returns to full width, and `j` then moves without opening. `←` is not bound yet.
 
 ### 6. Done and next
 
