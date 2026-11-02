@@ -26,7 +26,7 @@ const CSS = `
   }
 }
 :host(.${SKIN_CLASS}) {
-  color-scheme: light;
+  color-scheme: var(--nw-scheme);
   --bg: var(--nw-surface);
   --fg: var(--nw-text);
   --muted: var(--nw-secondary);

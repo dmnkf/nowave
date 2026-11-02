@@ -210,14 +210,19 @@ test('opens Shortwave\'s palette over the undimmed app', async ({ page }) => {
   });
 });
 
-test('uses the light skin palette even with a dark OS preference and restores native styles when disabled', async ({ page }) => {
+test('follows a dark OS preference with Shortwave dark colours, locks out Dark Reader and restores native styles when disabled', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
   await open(page);
+  expect(await style(page.locator('body'), 'backgroundColor')).toBe('rgb(10, 10, 14)');
+  expect(await style(page.locator('#unread-row'), 'backgroundColor')).toBe('rgb(22, 22, 22)');
+  await expect(page.locator('meta[name="darkreader-lock"]')).toBeAttached();
+  expect(await style(page.locator('#message-body'), 'filter')).toBe('invert(1) hue-rotate(180deg)');
   await page.keyboard.press('Control+k');
-  expect(await page.evaluate(() => getComputedStyle(window.fixtureRoots.get('nowave-palette').querySelector('.card')).backgroundColor)).toBe('rgb(255, 255, 255)');
+  expect(await page.evaluate(() => getComputedStyle(window.fixtureRoots.get('nowave-palette').querySelector('.card')).backgroundColor)).toBe('rgb(42, 42, 42)');
   await page.keyboard.press('Escape');
   await paletteCommand(page, 'Toggle Shortwave look');
   await expect(page.locator('html')).not.toHaveClass(/nowave-skin/);
+  await expect(page.locator('meta[name="darkreader-lock"]')).not.toBeAttached();
   expect(await style(page.locator('body'), 'backgroundColor')).toBe('rgb(234, 241, 251)');
   expect(await style(page.locator('#unread-row'), 'backgroundColor')).toBe('rgb(242, 246, 252)');
   await page.keyboard.press('Control+k');

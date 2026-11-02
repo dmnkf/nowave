@@ -168,6 +168,9 @@ const style = document.createElement('style');
 style.id = 'nowave-style';
 style.textContent = CALM_CSS + SKIN_CSS;
 
+// Dark Reader would darken the look's own dark theme a second time.
+const darkReaderLock = Object.assign(document.createElement('meta'), { name: 'darkreader-lock' });
+
 function saveGmailKeys(found) {
   const gmailKeys = { ...settings.gmailKeys, ...found };
   if (JSON.stringify(gmailKeys) !== JSON.stringify(settings.gmailKeys)) update({ ...settings, gmailKeys });
@@ -210,6 +213,10 @@ function sync() {
   if (loading()) return;
   const html = document.documentElement;
   if (!style.isConnected) document.head.append(style);
+  if (darkReaderLock.isConnected !== settings.skin) {
+    if (settings.skin) document.head.append(darkReaderLock);
+    else darkReaderLock.remove();
+  }
   html.classList.toggle(CALM_CLASS, settings.calm);
   // Gmail sizes its panes from the header height on resize, and the skin changes that height.
   if (html.classList.contains(SKIN_CLASS) !== settings.skin) {

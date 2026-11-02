@@ -76,10 +76,13 @@ Each journey lists what Shortwave does (measured live in Shortwave's Sent view a
 
 - Shortwave follows the system theme. Its dark mode is to be measured: background, card, rows, selection, panel and palette.
 - nowave: a dark theme on `prefers-color-scheme: dark`. While the look is on, `<meta name="darkreader-lock">` stops Dark Reader from darkening Gmail a second time.
+- Measured on 2026-11-02 in Shortwave's dark mode: page `rgb(10,10,14)`, card `rgb(22,22,22)`, cursor row `rgb(30,45,87)`, hovered row `rgb(59,59,59)`, sender and subject `rgba(255,255,255,0.65)`, snippet and date `0.4`, unread `0.9`, section headers `0.58`, idle tabs `0.36`, borders `rgba(255,255,255,0.12)`, section rule `rgb(51,51,51)`, palette card `rgb(42,42,42)` with a `rgb(38,38,38)` label and `rgba(53,106,255,0.2)` selection, Compose text `rgb(101,147,255)` on `rgba(53,106,255,0.12)`. Shortwave also renders message bodies light on dark.
+- Built on 2026-11-02 and checked on real Gmail in Inbox, Sent, a search, two open conversations, the snooze menu and settings. Message bodies are inverted with their hues kept, and their images are inverted back. Settings pages keep Gmail's light content. Still to check: an open compose window in dark (seen only minimised), and Gmail's dialogs.
 
 ### 12. Clean-up
 
 - Hide Gmail's footer (Terms, Privacy, account activity) and the stray horizontal scrollbar stub under the list.
+- Done on 2026-11-02: the footer is `[role="contentinfo"]`, and the "scrollbar stub" was its storage meter, so hiding the footer removes both.
 
 ## Keys and commands
 

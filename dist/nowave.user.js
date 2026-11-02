@@ -819,7 +819,9 @@ ${S} {
   --nw-page: rgb(229, 233, 243);
   --nw-card: rgb(252, 252, 254);
   --nw-surface: #ffffff;
+  --nw-field: #ffffff;
   --nw-text: rgba(5, 3, 17, 0.87);
+  --nw-sender: rgba(5, 3, 17, 0.87);
   --nw-secondary: rgba(5, 3, 17, 0.54);
   --nw-tertiary: rgba(5, 3, 17, 0.45);
   --nw-subject: rgba(5, 0, 26, 0.75);
@@ -836,8 +838,41 @@ ${S} {
   --nw-wash: rgba(53, 106, 255, 0.16);
   --nw-hover: rgb(235, 234, 236);
   --nw-selected: rgb(204, 216, 254);
+  --nw-avatar: rgb(240, 241, 245);
+  --nw-icon-filter: none;
+  --nw-mail-filter: none;
+  --nw-scheme: light;
   --nw-ease: ${EASE};
-  color-scheme: light;
+  color-scheme: var(--nw-scheme);
+}
+@media (prefers-color-scheme: dark) {
+  ${S} {
+    --nw-page: rgb(10, 10, 14);
+    --nw-card: rgb(22, 22, 22);
+    --nw-surface: rgb(42, 42, 42);
+    --nw-field: transparent;
+    --nw-text: rgba(255, 255, 255, 0.9);
+    --nw-sender: rgba(255, 255, 255, 0.65);
+    --nw-secondary: rgba(255, 255, 255, 0.58);
+    --nw-tertiary: rgba(255, 255, 255, 0.36);
+    --nw-subject: rgba(255, 255, 255, 0.65);
+    --nw-snippet: rgba(255, 255, 255, 0.4);
+    --nw-strong: rgba(255, 255, 255, 0.9);
+    --nw-border: rgba(255, 255, 255, 0.12);
+    --nw-rule: rgb(51, 51, 51);
+    --nw-fill: rgba(255, 255, 255, 0.08);
+    --nw-hairline: rgba(255, 255, 255, 0.08);
+    --nw-chrome: rgb(38, 38, 38);
+    --nw-accent-text: rgb(101, 147, 255);
+    --nw-accent-fill: rgba(53, 106, 255, 0.12);
+    --nw-wash: rgba(53, 106, 255, 0.2);
+    --nw-hover: rgb(59, 59, 59);
+    --nw-selected: rgb(30, 45, 87);
+    --nw-avatar: transparent;
+    --nw-icon-filter: invert(1) hue-rotate(180deg);
+    --nw-mail-filter: invert(1) hue-rotate(180deg);
+    --nw-scheme: dark;
+  }
 }
 ${S} body,
 ${S} .wl { background: var(--nw-page) !important; }
@@ -859,12 +894,13 @@ ${S} header#gb form[role="search"] {
   margin: 0;
   border: 1px solid var(--nw-border);
   border-radius: 8px;
-  background: var(--nw-surface);
+  background: var(--nw-field);
   box-shadow: none;
 }
 ${S} header#gb form[role="search"] > :is(div, button) { height: 36px; }
 ${S} header#gb form[role="search"] > button:last-of-type { display: grid; place-items: center; width: 36px; padding: 0 0 0 4px; }
 ${S} header#gb form[role="search"] > button:last-of-type svg { width: 20px; height: 20px; margin: 0; color: var(--nw-secondary); fill: currentColor; }
+${S} header#gb form[role="search"] button svg { color: var(--nw-secondary); fill: currentColor; }
 ${S} header#gb form[role="search"] > [gh="sb"] { margin: 0 40px 0 37px; }
 ${S} header#gb form[role="search"] input { font: 14px/20px var(--nw-font); color: var(--nw-text); }
 ${S} header#gb form[role="search"] input::placeholder { color: transparent; }
@@ -936,6 +972,8 @@ ${S} :is(.aUx:not(:has(> ${SELECTORS2.quickSettings})), .aUx > .bAw, [role="comp
   min-width: 0 !important;
 }
 ${S} .aUx > ${SELECTORS2.quickSettings} { border-radius: 8px 0 0 0; background: var(--nw-surface); }
+${S} [role="complementary"] { background: transparent !important; }
+${S} ${SELECTORS2.card} [role="contentinfo"] { display: none !important; }
 ${S} [role="complementary"] [role="tablist"] { width: ${HEADER_SIDE}px; padding-top: 36px; }
 ${S} [role="complementary"] [role="tab"] { position: relative; margin: 0 10px 8px; }
 ${S} [role="complementary"] [role="tab"] > * {
@@ -959,6 +997,16 @@ ${S} #nowave-splits { flex: none; min-width: 0; margin: 0 8px 0 0; }
 ${S} ${SELECTORS2.toolbarActions} .G-Ni:is(:has(> [role="button"] [role="checkbox"]), :has(> [act="20"]), :has(> .nf)) {
   display: none;
 }
+${S} ${SELECTORS2.toolbar} :is(.asa, .Cr [role="button"] > *, .aBS [role="button"]) { filter: var(--nw-icon-filter); }
+${S} ${SELECTORS2.toolbar} .Im [role="button"] {
+  border-color: var(--nw-border) !important;
+  background: transparent !important;
+  color: var(--nw-secondary) !important;
+}
+${S} ${SELECTORS2.toolbar} .Im [role="button"] :is(img, svg, .bxX) { filter: var(--nw-icon-filter); }
+${S} ${SELECTORS2.toolbar} .Cr button { border: 1px solid var(--nw-border); background: transparent !important; color: var(--nw-secondary); }
+${S} ${SELECTORS2.toolbar} .Cr button * { color: inherit !important; }
+${S} .f2 h2.dt { color: var(--nw-text); }
 ${S} ${SELECTORS2.toolbar} .Cr { opacity: 0.6; }
 ${S} ${SELECTORS2.toolbar} .Cr :is(.Dj, .Dj *) { font: 12px/16px var(--nw-font) !important; color: var(--nw-tertiary); }
 ${S} ${SELECTORS2.toolbar} > [role="toolbar"] { margin: 8px 0 0 4px; padding: 0; font-family: var(--nw-font); }
@@ -1005,7 +1053,7 @@ ${S} tr.zA > td.yX .yW span[name]:not(span[name] ~ *)::before {
   overflow: hidden;
   border: 1px solid var(--nw-border);
   border-radius: 6px;
-  background: rgb(240, 241, 245);
+  background: var(--nw-avatar);
   color: var(--nw-secondary);
   font: 600 12px/22px ui-monospace, "SF Mono", Menlo, monospace;
   letter-spacing: 24px;
@@ -1034,7 +1082,7 @@ ${S} tr.zA:is(:hover, :has(td.oZ-x3 [aria-checked="true"])) > td.yX .yW span[nam
 ${S} tr.zA > td.yX { flex: 0 0 249px !important; width: 249px !important; margin: 0 4px 0 0 !important; }
 ${S} tr.zA > td.a4W { flex: 1 1 0 !important; min-width: 0; }
 ${S} tr.zA > td.yf { order: 1; width: auto !important; flex: none !important; margin-left: 8px; opacity: 0.55; }
-${S} tr.zA > td.yf .yE { display: block !important; }
+${S} tr.zA > td.yf .yE { display: block !important; filter: var(--nw-icon-filter); }
 ${S} tr.zA > td.apU { order: 2; width: 20px !important; flex: none !important; margin-left: 8px; }
 ${S} tr.zA:not(:hover) > td.apU:has(.aXw) { display: none; }
 ${S} tr.zA > :is(td.byZ, td.xW, td.bq4) { order: 3; }
@@ -1046,7 +1094,8 @@ ${S} tr.zA td.xW span {
 }
 ${S} tr.zA.zE td.xW span { font-weight: 700 !important; color: var(--nw-strong) !important; }
 ${S} tr.zA > td.bq4 { opacity: 0.7; }
-${S} tr.zA td.yX :is(.yW, .bA4) span { font-weight: 400 !important; color: var(--nw-text) !important; }
+${S} tr.zA td.yX .yW { color: var(--nw-sender) !important; }
+${S} tr.zA td.yX :is(.yW, .bA4) span { font-weight: 400 !important; color: var(--nw-sender) !important; }
 ${S} tr.zA.zE td.yX :is(.yW, .bA4) span { font-weight: 700 !important; color: var(--nw-strong) !important; }
 ${S} tr.zA td.yX .bx0 { margin-left: 4px; font: 400 12px/20px var(--nw-font) !important; color: var(--nw-tertiary) !important; }
 ${S} tr.zA .bog,
@@ -1104,11 +1153,20 @@ ${S} h3.Wr .qh {
   text-transform: uppercase;
   color: var(--nw-secondary) !important;
 }
-${S} h3.Wr img.qi { position: absolute; top: -1px; right: 17px; margin: 0; opacity: 0.45; transform: scale(0.6); }
+${S} h3.Wr img.qi { position: absolute; top: -1px; right: 17px; margin: 0; opacity: 0.45; transform: scale(0.6); filter: var(--nw-icon-filter); }
 
 ${S} .adn .gE { font-family: var(--nw-font); color: var(--nw-secondary); }
 ${S} .adn .gD { font-family: var(--nw-font); color: var(--nw-text); }
 ${S} .adn .gH { color: var(--nw-secondary); }
+${S} .adn :is(.iw, .go, .hb, .g2) { color: var(--nw-secondary); }
+${S} :is(.a98, .Tm, .btDi4d) { background: var(--nw-card) !important; }
+${S} .nr:has(> .amn) { background: transparent !important; }
+${S} .amn .ams { border-color: var(--nw-border) !important; color: var(--nw-secondary) !important; }
+${S} :is(.adn .gH, .V8djrc) :is(img, svg, .T-KT) { filter: var(--nw-icon-filter); }
+${S} :is(.ii.gt, .AD :is([g_editable="true"], .aoD)) { filter: var(--nw-mail-filter); }
+${S} :is(.ii.gt, .AD [g_editable="true"]) :is(img, video, picture, canvas, iframe, [style*="url("], [background]):not(:is(picture, [style*="url("], [background]) *) {
+  filter: var(--nw-mail-filter);
+}
 
 ${S} .AD:has([g_editable="true"]) .M9 {
   border-radius: 12px 12px 0 0;
@@ -1133,7 +1191,7 @@ ${S} .Kj-JD {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
   font-family: var(--nw-font);
 }
-${S} .J-M .J-N { border-radius: 6px; }
+${S} .J-M .J-N { border-radius: 6px; color: var(--nw-text); }
 ${S} .J-M .J-N:is(:hover, .J-N-JT) { background: var(--nw-wash); }
 ${S} :is([gh="cm"], [gh="tm"] [role="button"], .TO a):focus-visible {
   outline: 2px solid var(--nw-accent);
@@ -1284,7 +1342,7 @@ svg {
   max-height: min(363px, 70vh);
   margin-top: 20vh;
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--nw-surface);
   box-shadow: rgba(0, 0, 0, 0.3) 0 16px 70px;
   font: 14px/20px var(--nw-font);
   color: var(--nw-text);
@@ -1424,7 +1482,7 @@ svg {
   }
 }
 :host(.${SKIN_CLASS}) {
-  color-scheme: light;
+  color-scheme: var(--nw-scheme);
   --bg: var(--nw-surface);
   --fg: var(--nw-text);
   --muted: var(--nw-secondary);
@@ -2050,6 +2108,7 @@ ${view.name}`;
   var style = document.createElement("style");
   style.id = "nowave-style";
   style.textContent = CALM_CSS + SKIN_CSS;
+  var darkReaderLock = Object.assign(document.createElement("meta"), { name: "darkreader-lock" });
   function saveGmailKeys(found) {
     const gmailKeys2 = { ...settings.gmailKeys, ...found };
     if (JSON.stringify(gmailKeys2) !== JSON.stringify(settings.gmailKeys)) update({ ...settings, gmailKeys: gmailKeys2 });
@@ -2086,6 +2145,10 @@ ${view.name}`;
     if (loading()) return;
     const html = document.documentElement;
     if (!style.isConnected) document.head.append(style);
+    if (darkReaderLock.isConnected !== settings.skin) {
+      if (settings.skin) document.head.append(darkReaderLock);
+      else darkReaderLock.remove();
+    }
     html.classList.toggle(CALM_CLASS, settings.calm);
     if (html.classList.contains(SKIN_CLASS) !== settings.skin) {
       html.classList.toggle(SKIN_CLASS, settings.skin);
